@@ -168,13 +168,27 @@ Agora o site já abre em `http://SEU_IP` (ou `http://seu-dominio`).
 
 ## 9. Ativar HTTPS (precisa de domínio)
 
+Primeiro coloque o seu domínio no Nginx. **Sem isso, o Certbot gera o certificado mas não consegue
+instalá-lo.** Troque `pesquisa.seudominio.com.br` pelo seu domínio nos comandos abaixo:
+
 ```bash
-sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d pesquisa.seudominio.com.br
+sudo sed -i 's/server_name _;/server_name pesquisa.seudominio.com.br;/' /etc/nginx/sites-available/pesquisa-natal
+grep server_name /etc/nginx/sites-available/pesquisa-natal
+sudo nginx -t && sudo systemctl reload nginx
 ```
 
-Informe um e-mail, aceite os termos e, se perguntar, escolha **redirecionar HTTP para HTTPS**. A
-renovação do certificado é automática.
+O `grep` deve mostrar o seu domínio. Depois gere e instale o certificado:
+
+```bash
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d pesquisa.seudominio.com.br --redirect
+```
+
+Informe um e-mail e aceite os termos. O `--redirect` faz quem acessar por `http://` ir
+automaticamente para `https://`. A renovação do certificado é automática.
+
+> A porta **443** precisa estar liberada: no EC2, no Security Group; no **Lightsail**, em
+> **Networking → IPv4 Firewall → Add rule → HTTPS**.
 
 ## 10. Conferir
 
@@ -196,10 +210,12 @@ renovação do certificado é automática.
 
 ## Se algo der errado
 
-| Sintoma                                   | O que fazer                                                                                       |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| **502 Bad Gateway**                       | O Node.js não está rodando. Veja `sudo systemctl status pesquisa-natal` e os logs.                |
-| Site não abre de jeito nenhum             | Confira no Security Group da instância se as portas **80** e **443** estão liberadas.             |
-| `password authentication failed` nos logs | A senha no `DATABASE_URL` do `.env` é diferente da criada no passo 4.                             |
-| Certbot falha                             | O domínio ainda não aponta para o Elastic IP (aguarde alguns minutos) ou a porta 80 está fechada. |
-| `ADMIN_PASSWORD` não definida nos logs    | Falta a linha `ADMIN_PASSWORD=` no `.env`.                                                        |
+| Sintoma                                                         | O que fazer                                                                                                                                  |
+| --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **502 Bad Gateway**                                             | O Node.js não está rodando. Veja `sudo systemctl status pesquisa-natal` e os logs.                                                           |
+| Site não abre de jeito nenhum                                   | Confira no Security Group da instância se as portas **80** e **443** estão liberadas.                                                        |
+| `password authentication failed` nos logs                       | A senha no `DATABASE_URL` do `.env` é diferente da criada no passo 4.                                                                        |
+| Certbot falha                                                   | O domínio ainda não aponta para o Elastic IP (aguarde alguns minutos) ou a porta 80 está fechada.                                            |
+| Certbot: `Could not automatically find a matching server block` | O `server_name` do Nginx não é o domínio. Faça a primeira parte do passo 9 e rode `sudo certbot install --cert-name SEU_DOMINIO --redirect`. |
+| HTTP abre, HTTPS não abre                                       | Libere a porta **443** no Security Group (EC2) ou no firewall da instância (Lightsail).                                                      |
+| `ADMIN_PASSWORD` não definida nos logs                          | Falta a linha `ADMIN_PASSWORD=` no `.env`.                                                                                                   |
