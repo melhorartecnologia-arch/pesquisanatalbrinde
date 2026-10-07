@@ -1,0 +1,18 @@
+# Serviço do systemd: mantém a pesquisa no ar e reinicia sozinho em caso de falha
+# ou reinício do servidor. Copie para /etc/systemd/system/pesquisa-natal.service
+[Unit]
+Description=Pesquisa da Cesta de Natal - Cervejaria Cidade Imperial
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/pesquisanatalbrinde
+ExecStart=/usr/bin/node src/server.js
+Environment=NODE_ENV=production
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

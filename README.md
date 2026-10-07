@@ -138,6 +138,9 @@ O painel se atualiza sozinho a cada 30 segundos. Após 10 senhas erradas, o IP f
 
 ## Publicação
 
+**Passo a passo para servidor Ubuntu na AWS (sem Docker): [PUBLICAR-AWS.md](PUBLICAR-AWS.md).**
+Os arquivos prontos de configuração do Nginx e do serviço (systemd) ficam em [`deploy/`](deploy/).
+
 - Publique atrás de **HTTPS** (os cookies passam a ser marcados como `Secure` automaticamente;
   com proxy reverso, defina `TRUST_PROXY=1`).
 - O limite de tentativas de login fica em memória: rode **uma instância** do app.
