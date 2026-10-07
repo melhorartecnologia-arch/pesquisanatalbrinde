@@ -1,0 +1,22 @@
+{
+  "name": "pesquisa-natal-cidade-imperial",
+  "version": "1.0.0",
+  "description": "Pesquisa interna da Cervejaria Cidade Imperial para escolher o item da cesta de Natal.",
+  "main": "src/server.js",
+  "private": true,
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "db:init": "node src/db-init.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^18.0.6",
+    "express": "^4.22.3",
+    "pg": "^8.23.1"
+  }
+}

@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cesta de Natal · Cervejaria Cidade Imperial</title>
+    <meta
+      name="description"
+      content="Pesquisa interna: escolha qual item vai fazer parte da cesta de Natal dos colaboradores da Cervejaria Cidade Imperial."
+    />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#fbfaf6" />
+    <link rel="icon" href="/img/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
+    />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+    <script src="/js/site.js" defer></script>
+  </head>
+  <body>
+    <a class="pular sr-only" href="#votar">Ir direto para a votação</a>
+
+    <header class="topo">
+      <div class="container topo__conteudo">
+        <a class="marca" href="/" aria-label="Cervejaria Cidade Imperial — início">
+          <span class="marca__coroa" aria-hidden="true">
+            <svg viewBox="0 0 64 44" fill="currentColor">
+              <path d="M6 15l11.5 11.5L32 6l14.5 20.5L58 15l-4 22H10z" />
+              <rect x="10" y="39" width="44" height="5" rx="1.5" />
+              <circle cx="6" cy="12.5" r="3.6" />
+              <circle cx="32" cy="4" r="3.6" />
+              <circle cx="58" cy="12.5" r="3.6" />
+            </svg>
+          </span>
+          <span class="marca__texto">
+            <span class="marca__nome">Cidade Imperial</span>
+            <span class="marca__sub">Cervejaria</span>
+          </span>
+        </a>
+        <a class="botao botao--pequeno topo__acao js-ir-votar" href="#votar">Votar agora</a>
+      </div>
+    </header>
+
+    <main>
+      <!-- Destaque principal -->
+      <section class="hero">
+        <div class="hero__neve" aria-hidden="true"></div>
+        <div class="container hero__grade">
+          <div class="hero__texto">
+            <p class="selo">
+              <span class="selo__ponto" aria-hidden="true"></span>
+              <span>Natal <span class="js-ano">2026</span> · Pesquisa interna</span>
+            </p>
+            <h1 class="hero__titulo">
+              A cesta de Natal é nossa.
+              <em>O brinde, você escolhe.</em>
+            </h1>
+            <p class="hero__descricao">
+              Qual destes itens você quer receber na cesta de fim de ano da Cervejaria Cidade Imperial?
+              Escolha o seu favorito e confirme com o seu nome. Cada colaborador vota uma única vez.
+            </p>
+            <div class="hero__acoes">
+              <a class="botao js-ir-votar" href="#votar">
+                <span class="js-texto-cta">Escolher meu brinde</span>
+                <span class="botao__seta" aria-hidden="true">→</span>
+              </a>
+              <p class="hero__prazo js-prazo" hidden></p>
+            </div>
+          </div>
+
+          <div class="hero__vitrine" aria-hidden="true">
+            <div class="vitrine__halo"></div>
+            <span class="brilho brilho--1"></span>
+            <span class="brilho brilho--2"></span>
+            <span class="brilho brilho--3"></span>
+            <img
+              class="vitrine__item vitrine__item--cooler"
+              src="/img/cooler-ultra-00.webp"
+              alt=""
+              width="682"
+              height="1000"
+            />
+            <img
+              class="vitrine__item vitrine__item--caixa"
+              src="/img/caixa-termica-00.webp"
+              alt=""
+              width="1100"
+              height="707"
+            />
+            <div class="vitrine__etiqueta">
+              <span class="vitrine__etiqueta-numero">2</span>
+              <span>opções na disputa</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Faixa inspirada na cinta do cooler Ultra 0.0 -->
+      <div class="faixa" aria-hidden="true">
+        <div class="faixa__trilho">
+          <span>Natal <span class="js-ano">2026</span></span
+          ><i>•</i><span>Você escolhe</span><i>•</i><span>Cesta de fim de ano</span><i>•</i
+          ><span>Cidade Imperial</span><i>•</i> <span>Natal <span class="js-ano">2026</span></span
+          ><i>•</i><span>Você escolhe</span><i>•</i><span>Cesta de fim de ano</span><i>•</i
+          ><span>Cidade Imperial</span><i>•</i>
+        </div>
+      </div>
+
+      <!-- Como funciona -->
+      <section class="passos" aria-labelledby="titulo-passos">
+        <div class="container">
+          <h2 id="titulo-passos" class="sr-only">Como funciona</h2>
+          <ol class="passos__lista">
+            <li class="passo">
+              <span class="passo__numero">01</span>
+              <h3 class="passo__titulo">Conheça os brindes</h3>
+              <p>Veja as opções que podem entrar na cesta deste ano.</p>
+            </li>
+            <li class="passo">
+              <span class="passo__numero">02</span>
+              <h3 class="passo__titulo">Escolha o favorito</h3>
+              <p>Toque no item que você mais gostaria de receber.</p>
+            </li>
+            <li class="passo">
+              <span class="passo__numero">03</span>
+              <h3 class="passo__titulo">Confirme seu voto</h3>
+              <p>Informe seu nome e confirme. É um voto por pessoa.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- Votação -->
+      <section id="votar" class="votacao" aria-labelledby="titulo-votacao" tabindex="-1">
+        <div class="container">
+          <header class="votacao__cabecalho">
+            <p class="sobretitulo">Sua escolha</p>
+            <h2 id="titulo-votacao" class="votacao__titulo">Qual item vai para a cesta?</h2>
+            <p class="votacao__subtitulo">
+              Selecione uma opção abaixo. O item mais votado entra na cesta de Natal de todos os
+              colaboradores.
+            </p>
+          </header>
+
+          <!-- Carregando -->
+          <div class="carregando js-carregando" role="status">
+            <span class="carregando__icone" aria-hidden="true"></span>
+            Carregando as opções…
+          </div>
+
+          <!-- Falha ao carregar -->
+          <div class="aviso-falha js-falha" hidden>
+            <p class="alerta">Não foi possível carregar a pesquisa agora. Verifique sua conexão.</p>
+            <button type="button" class="botao botao--secundario js-tentar-novamente">
+              Tentar novamente
+            </button>
+          </div>
+
+          <!-- Formulário -->
+          <form class="formulario js-formulario" novalidate hidden>
+            <fieldset class="opcoes">
+              <legend class="sr-only">Itens da cesta de Natal</legend>
+              <div class="opcoes__grade js-opcoes"></div>
+              <p class="campo__erro opcoes__erro js-erro-item" role="alert"></p>
+            </fieldset>
+
+            <div class="identificacao">
+              <div class="identificacao__cabecalho">
+                <h3 class="identificacao__titulo">Quem está votando?</h3>
+                <p class="identificacao__texto">
+                  Usamos seu nome apenas para garantir um voto por colaborador.
+                </p>
+              </div>
+
+              <div class="identificacao__campos">
+                <label class="campo">
+                  <span class="campo__rotulo">Nome completo</span>
+                  <input
+                    class="campo__entrada js-nome"
+                    type="text"
+                    name="nome"
+                    autocomplete="name"
+                    maxlength="120"
+                    placeholder="Ex.: Maria da Silva"
+                    required
+                  />
+                  <span class="campo__erro js-erro-nome" role="alert"></span>
+                </label>
+
+                <label class="campo">
+                  <span class="campo__rotulo">Setor <small>(opcional)</small></span>
+                  <input
+                    class="campo__entrada js-setor"
+                    type="text"
+                    name="setor"
+                    maxlength="80"
+                    list="lista-setores"
+                    placeholder="Ex.: Produção"
+                    autocomplete="off"
+                  />
+                  <datalist id="lista-setores" class="js-setores"></datalist>
+                </label>
+              </div>
+
+              <div class="identificacao__rodape">
+                <p class="identificacao__aviso">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5Zm-3 8V7a3 3 0 1 1 6 0v3H9Z"
+                    />
+                  </svg>
+                  Depois de confirmado, o voto não pode ser alterado.
+                </p>
+                <button type="submit" class="botao botao--grande">
+                  Confirmar meu voto
+                  <span class="botao__seta" aria-hidden="true">→</span>
+                </button>
+              </div>
+              <p class="alerta js-erro-geral" role="alert" hidden></p>
+            </div>
+          </form>
+
+          <!-- Voto registrado -->
+          <div class="obrigado js-obrigado" hidden tabindex="-1">
+            <div class="obrigado__selo" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path fill="currentColor" d="M9.55 17.3 4.8 12.55l1.4-1.4 3.35 3.35 8.25-8.25 1.4 1.4z" />
+              </svg>
+            </div>
+            <p class="sobretitulo">Voto registrado</p>
+            <h2 class="obrigado__titulo js-obrigado-titulo">Obrigado pelo seu voto!</h2>
+            <p class="obrigado__texto js-obrigado-texto">
+              Sua escolha já foi computada. Agora é só aguardar a cesta de fim de ano.
+            </p>
+
+            <div class="escolha js-escolha" hidden>
+              <img class="escolha__imagem js-escolha-imagem" src="" alt="" />
+              <div>
+                <p class="escolha__rotulo">Você escolheu</p>
+                <p class="escolha__nome js-escolha-nome"></p>
+                <p class="escolha__data js-escolha-data"></p>
+              </div>
+            </div>
+
+            <p class="obrigado__nota">
+              Este navegador já registrou um voto, por isso a votação fica bloqueada aqui.
+              <br />Boas festas para você e sua família! 🎄
+            </p>
+          </div>
+
+          <!-- Votação encerrada -->
+          <div class="obrigado obrigado--encerrado js-encerrado" hidden>
+            <p class="sobretitulo">Votação encerrada</p>
+            <h2 class="obrigado__titulo">O prazo para votar terminou</h2>
+            <p class="obrigado__texto">
+              Obrigado pelo interesse! Os votos já estão sendo apurados para montar a cesta de fim de ano.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="rodape">
+      <div class="container rodape__conteudo">
+        <p class="rodape__marca">Cervejaria Cidade Imperial</p>
+        <p>Pesquisa interna · uso exclusivo dos colaboradores · Natal <span class="js-ano">2026</span></p>
+      </div>
+    </footer>
+
+    <dialog class="dialogo js-dialogo" aria-labelledby="dialogo-titulo">
+      <form method="dialog">
+        <div class="dialogo__corpo">
+          <p class="sobretitulo">Confirmação</p>
+          <h2 id="dialogo-titulo" class="dialogo__titulo">Confirmar seu voto?</h2>
+          <div class="confirmacao">
+            <img class="confirmacao__imagem js-confirmacao-imagem" src="" alt="" />
+            <div>
+              <p class="confirmacao__item js-confirmacao-item"></p>
+              <p class="confirmacao__nome js-confirmacao-nome"></p>
+            </div>
+          </div>
+          <p class="dialogo__texto">Depois de confirmado, não será possível votar de novo.</p>
+        </div>
+        <div class="dialogo__acoes">
+          <button type="submit" value="cancelar" class="botao botao--secundario">Voltar</button>
+          <button type="submit" value="confirmar" class="botao js-confirmar">Sim, confirmar voto</button>
+        </div>
+      </form>
+    </dialog>
+    <template id="modelo-opcao">
+      <label class="opcao">
+        <input class="opcao__entrada" type="radio" name="item" />
+        <span class="opcao__vitrine">
+          <span class="opcao__numero"></span>
+          <span class="opcao__check" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path fill="currentColor" d="M9.55 17.3 4.8 12.55l1.4-1.4 3.35 3.35 8.25-8.25 1.4 1.4z" />
+            </svg>
+          </span>
+          <img alt="" decoding="async" />
+        </span>
+        <span class="opcao__info">
+          <span class="opcao__nome"></span>
+          <span class="opcao__descricao"></span>
+          <span class="opcao__seletor" aria-hidden="true">
+            <span class="opcao__radio"></span>
+            <span class="opcao__acao">Escolher este item</span>
+          </span>
+        </span>
+      </label>
+    </template>
+  </body>
+</html>

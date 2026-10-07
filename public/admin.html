@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Painel da Pesquisa · Cidade Imperial</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#fbfaf6" />
+    <link rel="icon" href="/img/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+    />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+    <script src="/js/admin.js" defer></script>
+  </head>
+  <body>
+    <!-- ================= Login ================= -->
+    <main class="login js-tela-login" hidden>
+      <form class="login__cartao js-form-login" novalidate>
+        <span class="marca__coroa login__coroa" aria-hidden="true">
+          <svg viewBox="0 0 64 44" fill="currentColor">
+            <path d="M6 15l11.5 11.5L32 6l14.5 20.5L58 15l-4 22H10z" />
+            <rect x="10" y="39" width="44" height="5" rx="1.5" />
+            <circle cx="6" cy="12.5" r="3.6" />
+            <circle cx="32" cy="4" r="3.6" />
+            <circle cx="58" cy="12.5" r="3.6" />
+          </svg>
+        </span>
+        <p class="sobretitulo">Área administrativa</p>
+        <h1 class="login__titulo">Pesquisa da Cesta de Natal</h1>
+        <p class="login__texto">Digite a senha de acesso para ver o resultado consolidado.</p>
+
+        <label class="campo login__campo">
+          <span class="campo__rotulo">Senha</span>
+          <span class="senha">
+            <input
+              class="campo__entrada js-senha"
+              type="password"
+              name="senha"
+              autocomplete="current-password"
+              required
+            />
+            <button type="button" class="senha__alternar js-alternar-senha" aria-pressed="false">
+              Mostrar
+            </button>
+          </span>
+        </label>
+
+        <p class="alerta js-erro-login" role="alert" hidden></p>
+
+        <button type="submit" class="botao login__botao js-entrar">Entrar no painel</button>
+        <a class="login__voltar" href="/">← Voltar para a pesquisa</a>
+      </form>
+    </main>
+
+    <!-- ================= Painel ================= -->
+    <div class="painel js-tela-painel" hidden>
+      <header class="painel__topo">
+        <div class="container painel__topo-conteudo">
+          <a class="marca" href="/admin" aria-label="Painel da pesquisa">
+            <span class="marca__coroa" aria-hidden="true">
+              <svg viewBox="0 0 64 44" fill="currentColor">
+                <path d="M6 15l11.5 11.5L32 6l14.5 20.5L58 15l-4 22H10z" />
+                <rect x="10" y="39" width="44" height="5" rx="1.5" />
+                <circle cx="6" cy="12.5" r="3.6" />
+                <circle cx="32" cy="4" r="3.6" />
+                <circle cx="58" cy="12.5" r="3.6" />
+              </svg>
+            </span>
+            <span class="marca__texto">
+              <span class="marca__nome">Cidade Imperial</span>
+              <span class="marca__sub">Painel da pesquisa</span>
+            </span>
+          </a>
+          <div class="painel__acoes">
+            <button type="button" class="botao botao--secundario botao--pequeno js-atualizar">
+              Atualizar
+            </button>
+            <button type="button" class="botao botao--secundario botao--pequeno js-sair">Sair</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="container painel__conteudo js-conteudo">
+        <div class="painel__cabecalho">
+          <div>
+            <h1 class="painel__titulo">Resultado da cesta de Natal</h1>
+            <p class="painel__status">
+              <span class="etiqueta js-etiqueta-votacao"></span>
+              <span class="js-atualizado-em"></span>
+            </p>
+          </div>
+          <div class="painel__exportar">
+            <a class="botao botao--pequeno" href="/api/admin/exportar/resumo.csv" download>
+              Exportar resumo (CSV)
+            </a>
+            <a class="botao botao--secundario botao--pequeno" href="/api/admin/exportar/votos.csv" download>
+              Exportar votos (CSV)
+            </a>
+          </div>
+        </div>
+
+        <p class="alerta js-erro-painel" role="alert" hidden></p>
+
+        <!-- Indicadores -->
+        <section class="indicadores" aria-label="Indicadores">
+          <article class="indicador indicador--destaque">
+            <p class="indicador__rotulo">Total de votos</p>
+            <p class="indicador__valor indicador__valor--heroi js-total">–</p>
+            <p class="indicador__detalhe js-total-detalhe"></p>
+          </article>
+          <article class="indicador">
+            <p class="indicador__rotulo">Na liderança</p>
+            <p class="indicador__valor indicador__valor--texto js-lider">–</p>
+            <p class="indicador__detalhe js-lider-detalhe"></p>
+          </article>
+          <article class="indicador">
+            <p class="indicador__rotulo">Votos hoje</p>
+            <p class="indicador__valor js-hoje">–</p>
+            <p class="indicador__detalhe">desde 00h00</p>
+          </article>
+          <article class="indicador">
+            <p class="indicador__rotulo">Último voto</p>
+            <p class="indicador__valor indicador__valor--texto js-ultimo">–</p>
+            <p class="indicador__detalhe js-ultimo-detalhe"></p>
+          </article>
+        </section>
+
+        <div class="grade-paineis">
+          <!-- Resultado por item -->
+          <section class="cartao" aria-labelledby="titulo-resultado">
+            <header class="cartao__cabecalho">
+              <h2 id="titulo-resultado" class="cartao__titulo">Votos por item</h2>
+              <p class="cartao__subtitulo">Percentual sobre o total de votos válidos</p>
+            </header>
+            <div class="grafico js-grafico" role="list"></div>
+            <p class="vazio js-grafico-vazio" hidden>Ainda não há votos registrados.</p>
+          </section>
+
+          <!-- Por setor -->
+          <section class="cartao" aria-labelledby="titulo-setor">
+            <header class="cartao__cabecalho">
+              <h2 id="titulo-setor" class="cartao__titulo">Votos por setor</h2>
+              <p class="cartao__subtitulo">Como cada área votou</p>
+            </header>
+            <div class="tabela-rolagem">
+              <table class="tabela tabela--numeros">
+                <thead class="js-setor-cabecalho"></thead>
+                <tbody class="js-setor-corpo"></tbody>
+              </table>
+            </div>
+            <p class="vazio js-setor-vazio" hidden>Sem dados por setor ainda.</p>
+          </section>
+        </div>
+
+        <!-- Lista de votos -->
+        <section class="cartao" aria-labelledby="titulo-votos">
+          <header class="cartao__cabecalho cartao__cabecalho--ferramentas">
+            <div>
+              <h2 id="titulo-votos" class="cartao__titulo">Votos registrados</h2>
+              <p class="cartao__subtitulo js-votos-contagem"></p>
+            </div>
+            <div class="filtros">
+              <label class="filtros__campo">
+                <span class="sr-only">Buscar por nome ou setor</span>
+                <input
+                  class="campo__entrada campo__entrada--compacta js-busca"
+                  type="search"
+                  placeholder="Buscar nome ou setor…"
+                />
+              </label>
+              <label class="filtros__campo">
+                <span class="sr-only">Filtrar por item</span>
+                <select class="campo__entrada campo__entrada--compacta js-filtro-item">
+                  <option value="">Todos os itens</option>
+                </select>
+              </label>
+              <label class="filtros__marcar">
+                <input type="checkbox" class="js-filtro-repetidos" />
+                Só nomes repetidos
+              </label>
+            </div>
+          </header>
+
+          <div class="tabela-rolagem">
+            <table class="tabela tabela--votos">
+              <thead>
+                <tr>
+                  <th scope="col">Nome</th>
+                  <th scope="col">Setor</th>
+                  <th scope="col">Item escolhido</th>
+                  <th scope="col">Data/hora</th>
+                  <th scope="col"><span class="sr-only">Ações</span></th>
+                </tr>
+              </thead>
+              <tbody class="js-votos-corpo"></tbody>
+            </table>
+          </div>
+          <p class="vazio js-votos-vazio" hidden>Nenhum voto encontrado.</p>
+        </section>
+      </main>
+    </div>
+
+    <div class="dica js-dica" role="tooltip" hidden></div>
+
+    <dialog class="dialogo js-dialogo-excluir" aria-labelledby="titulo-excluir">
+      <form method="dialog">
+        <div class="dialogo__corpo">
+          <h2 id="titulo-excluir" class="dialogo__titulo">Excluir este voto?</h2>
+          <p class="dialogo__texto">
+            O voto de <strong class="js-excluir-nome"></strong> em
+            <strong class="js-excluir-item"></strong> será removido da apuração. Use para descartar votos
+            duplicados ou inválidos.
+          </p>
+        </div>
+        <div class="dialogo__acoes">
+          <button type="submit" value="cancelar" class="botao botao--secundario">Cancelar</button>
+          <button type="submit" value="excluir" class="botao botao--perigo js-confirmar-exclusao">
+            Excluir voto
+          </button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>
