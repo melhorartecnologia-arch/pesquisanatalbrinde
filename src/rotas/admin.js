@@ -74,7 +74,7 @@ router.get('/sessao', (req, res) => {
 router.use(exigirAdmin);
 
 async function buscarResultado() {
-  const [itens, totais, setores] = await Promise.all([
+  const [itens, totais, dias] = await Promise.all([
     pool.query(
       `SELECT i.id, i.nome, i.imagem, COUNT(v.id)::int AS votos
          FROM itens i
@@ -94,20 +94,23 @@ async function buscarResultado() {
       [config.fusoHorario],
     ),
     pool.query(
-      `SELECT COALESCE(MIN(setor), 'Não informado') AS setor, item_id, COUNT(*)::int AS votos
+      `SELECT to_char((criado_em AT TIME ZONE $1)::date, 'DD/MM/YYYY') AS dia,
+              (criado_em AT TIME ZONE $1)::date AS data,
+              item_id, COUNT(*)::int AS votos
          FROM votos
-        GROUP BY lower(COALESCE(setor, '')), item_id`,
+        GROUP BY 1, 2, item_id
+        ORDER BY data DESC`,
+      [config.fusoHorario],
     ),
   ]);
 
   const total = totais.rows[0].total;
   const maiorVotacao = Math.max(0, ...itens.rows.map((item) => item.votos));
 
-  const porSetor = new Map();
-  for (const linha of setores.rows) {
-    const chave = linha.setor.toLocaleLowerCase('pt-BR');
-    if (!porSetor.has(chave)) porSetor.set(chave, { setor: linha.setor, total: 0, votos: {} });
-    const grupo = porSetor.get(chave);
+  const porDia = new Map();
+  for (const linha of dias.rows) {
+    if (!porDia.has(linha.dia)) porDia.set(linha.dia, { dia: linha.dia, total: 0, votos: {} });
+    const grupo = porDia.get(linha.dia);
     grupo.votos[linha.item_id] = linha.votos;
     grupo.total += linha.votos;
   }
@@ -123,15 +126,13 @@ async function buscarResultado() {
       percentual: total ? Math.round((item.votos / total) * 1000) / 10 : 0,
       lider: total > 0 && item.votos === maiorVotacao,
     })),
-    porSetor: [...porSetor.values()].sort(
-      (a, b) => b.total - a.total || a.setor.localeCompare(b.setor, 'pt-BR'),
-    ),
+    porDia: [...porDia.values()],
   };
 }
 
 async function buscarVotos() {
   const { rows } = await pool.query(
-    `SELECT v.id, v.nome, v.setor, v.criado_em AS "criadoEm", v.ip,
+    `SELECT v.id, v.criado_em AS "criadoEm",
             i.id AS "itemId", i.nome AS "itemNome",
             to_char(v.criado_em AT TIME ZONE $1, 'DD/MM/YYYY HH24:MI:SS') AS "dataFormatada"
        FROM votos v
@@ -207,9 +208,9 @@ router.get('/exportar/resumo.csv', async (req, res, next) => {
     }
     linhas.push(['Total', resultado.total, resultado.total ? '100,0%' : '0,0%']);
     linhas.push([]);
-    linhas.push(['Setor', ...resultado.itens.map((item) => item.nome), 'Total']);
-    for (const grupo of resultado.porSetor) {
-      linhas.push([grupo.setor, ...resultado.itens.map((item) => grupo.votos[item.id] || 0), grupo.total]);
+    linhas.push(['Dia', ...resultado.itens.map((item) => item.nome), 'Total']);
+    for (const grupo of resultado.porDia) {
+      linhas.push([grupo.dia, ...resultado.itens.map((item) => grupo.votos[item.id] || 0), grupo.total]);
     }
     enviarCsv(res, `resultado-cesta-natal-${carimboArquivo()}.csv`, linhas);
   } catch (erro) {
@@ -220,9 +221,9 @@ router.get('/exportar/resumo.csv', async (req, res, next) => {
 router.get('/exportar/votos.csv', async (req, res, next) => {
   try {
     const votos = await buscarVotos();
-    const linhas = [['ID', 'Nome', 'Setor', 'Item escolhido', 'Data/hora']];
+    const linhas = [['ID', 'Item escolhido', 'Data/hora']];
     for (const voto of votos) {
-      linhas.push([voto.id, voto.nome, voto.setor || '', voto.itemNome, voto.dataFormatada]);
+      linhas.push([voto.id, voto.itemNome, voto.dataFormatada]);
     }
     enviarCsv(res, `votos-cesta-natal-${carimboArquivo()}.csv`, linhas);
   } catch (erro) {

@@ -1,8 +1,8 @@
 (() => {
   'use strict';
 
-  // Chave usada para lembrar, neste navegador, que o colaborador já votou
-  const CHAVE_VOTO_LOCAL = 'cci-pesquisa-natal-voto';
+  // Segundos que a tela de agradecimento fica visível antes de liberar um novo voto
+  const SEGUNDOS_AGRADECIMENTO = 6;
 
   const $ = (seletor, raiz = document) => raiz.querySelector(seletor);
   const $$ = (seletor, raiz = document) => Array.from(raiz.querySelectorAll(seletor));
@@ -15,23 +15,17 @@
     formulario: $('.js-formulario'),
     opcoes: $('.js-opcoes'),
     erroItem: $('.js-erro-item'),
-    nome: $('.js-nome'),
-    erroNome: $('.js-erro-nome'),
-    setor: $('.js-setor'),
-    setores: $('.js-setores'),
     erroGeral: $('.js-erro-geral'),
     obrigado: $('.js-obrigado'),
-    obrigadoTitulo: $('.js-obrigado-titulo'),
-    obrigadoTexto: $('.js-obrigado-texto'),
     escolha: $('.js-escolha'),
     escolhaImagem: $('.js-escolha-imagem'),
     escolhaNome: $('.js-escolha-nome'),
-    escolhaData: $('.js-escolha-data'),
+    contagem: $('.js-contagem'),
+    novoVoto: $('.js-novo-voto'),
     encerrado: $('.js-encerrado'),
     dialogo: $('.js-dialogo'),
     confirmacaoImagem: $('.js-confirmacao-imagem'),
     confirmacaoItem: $('.js-confirmacao-item'),
-    confirmacaoNome: $('.js-confirmacao-nome'),
     confirmar: $('.js-confirmar'),
     prazo: $('.js-prazo'),
     modeloOpcao: $('#modelo-opcao'),
@@ -41,29 +35,8 @@
     itens: [],
     selecionado: null,
     enviando: false,
+    temporizador: null,
   };
-
-  // ---------- Armazenamento local (o navegador lembra que já votou) ----------
-
-  function lerVotoLocal() {
-    try {
-      const bruto = window.localStorage.getItem(CHAVE_VOTO_LOCAL);
-      return bruto ? JSON.parse(bruto) : null;
-    } catch (erro) {
-      return null;
-    }
-  }
-
-  function salvarVotoLocal(voto) {
-    try {
-      const registro = Object.assign({ jaVotou: true }, voto || {}, {
-        salvoEm: new Date().toISOString(),
-      });
-      window.localStorage.setItem(CHAVE_VOTO_LOCAL, JSON.stringify(registro));
-    } catch (erro) {
-      // Navegação privada ou armazenamento bloqueado: o cookie do servidor ainda protege
-    }
-  }
 
   // ---------- Utilidades ----------
 
@@ -84,24 +57,6 @@
     return { ok: resposta.ok, status: resposta.status, dados };
   }
 
-  function limparTexto(valor) {
-    return String(valor || '')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
-
-  function primeiroNome(nome) {
-    return limparTexto(nome).split(' ')[0] || '';
-  }
-
-  function formatarDataHora(iso) {
-    const data = new Date(iso);
-    if (Number.isNaN(data.getTime())) return '';
-    const dia = data.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
-    const hora = data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    return `${dia} às ${hora}`;
-  }
-
   function mostrarPainel(qual) {
     const paineis = {
       carregando: el.carregando,
@@ -114,46 +69,6 @@
       painel.hidden = nome !== qual;
     });
     el.secao.classList.toggle('is-concluida', qual === 'obrigado' || qual === 'encerrado');
-  }
-
-  function atualizarChamadas(texto) {
-    $$('.js-texto-cta').forEach((alvo) => {
-      alvo.textContent = texto;
-    });
-    $$('.topo__acao').forEach((alvo) => {
-      alvo.textContent = texto === 'Escolher meu brinde' ? 'Votar agora' : texto;
-    });
-  }
-
-  // ---------- Estados da página ----------
-
-  function exibirObrigado(voto, { jaHavia }) {
-    const nome = voto && voto.nome ? primeiroNome(voto.nome) : '';
-    el.obrigadoTitulo.textContent = nome ? `Obrigado, ${nome}!` : 'Obrigado pelo seu voto!';
-    el.obrigadoTexto.textContent = jaHavia
-      ? 'Você já participou desta pesquisa. Sua escolha está guardada com a gente.'
-      : 'Sua escolha já foi computada. Agora é só aguardar a cesta de fim de ano.';
-
-    const item = voto && voto.item;
-    if (item && item.nome) {
-      el.escolhaNome.textContent = item.nome;
-      el.escolhaData.textContent = voto.criadoEm
-        ? `Voto registrado em ${formatarDataHora(voto.criadoEm)}`
-        : '';
-      if (item.imagem) {
-        el.escolhaImagem.src = item.imagem;
-        el.escolhaImagem.alt = item.nome;
-        el.escolhaImagem.hidden = false;
-      } else {
-        el.escolhaImagem.hidden = true;
-      }
-      el.escolha.hidden = false;
-    } else {
-      el.escolha.hidden = true;
-    }
-
-    mostrarPainel('obrigado');
-    atualizarChamadas('Ver meu voto');
   }
 
   function exibirPrazo(votacao) {
@@ -185,8 +100,7 @@
       entrada.setAttribute('aria-describedby', idDescricao);
 
       $('.opcao__numero', fragmento).textContent = `Opção ${indice + 1}`;
-      const imagem = $('img', fragmento);
-      imagem.src = item.imagem;
+      $('img', fragmento).src = item.imagem;
       $('.opcao__nome', fragmento).textContent = item.nome;
       $('.opcao__nome', fragmento).id = idNome;
       $('.opcao__descricao', fragmento).textContent = item.descricao || '';
@@ -202,55 +116,21 @@
     $$('.opcao', el.opcoes).forEach((cartao) => {
       const ativo = cartao.dataset.itemId === String(id);
       cartao.classList.toggle('is-selecionada', ativo);
+      $('.opcao__entrada', cartao).checked = ativo;
       $('.opcao__acao', cartao).textContent = ativo ? 'Item escolhido' : 'Escolher este item';
     });
     el.erroItem.textContent = '';
-  }
-
-  function preencherSetores(setores) {
-    el.setores.replaceChildren(
-      ...(setores || []).map((setor) => Object.assign(document.createElement('option'), { value: setor })),
-    );
-  }
-
-  // ---------- Validação e envio ----------
-
-  function validarFormulario() {
-    let valido = true;
-    const nome = limparTexto(el.nome.value);
-
-    if (!estado.selecionado) {
-      el.erroItem.textContent = 'Escolha um dos itens acima para votar.';
-      valido = false;
-    }
-
-    if (nome.length < 3 || !/\p{L}/u.test(nome)) {
-      el.erroNome.textContent = 'Informe seu nome completo.';
-      el.nome.setAttribute('aria-invalid', 'true');
-      valido = false;
-    } else {
-      el.erroNome.textContent = '';
-      el.nome.removeAttribute('aria-invalid');
-    }
-
-    if (!estado.selecionado) {
-      el.opcoes.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      const primeira = $('.opcao__entrada', el.opcoes);
-      if (primeira) primeira.focus({ preventScroll: true });
-    } else if (!valido) {
-      el.nome.focus();
-    }
-    return valido;
   }
 
   function itemSelecionado() {
     return estado.itens.find((item) => item.id === estado.selecionado);
   }
 
+  // ---------- Confirmação e envio ----------
+
   function abrirConfirmacao() {
     const item = itemSelecionado();
     el.confirmacaoItem.textContent = item.nome;
-    el.confirmacaoNome.textContent = `Votante: ${limparTexto(el.nome.value)}`;
     el.confirmacaoImagem.src = item.imagem;
     el.confirmacaoImagem.alt = item.nome;
 
@@ -286,80 +166,98 @@
     try {
       const resposta = await chamarApi('/api/votos', {
         method: 'POST',
-        body: JSON.stringify({
-          itemId: estado.selecionado,
-          nome: limparTexto(el.nome.value),
-          setor: limparTexto(el.setor.value),
-        }),
+        body: JSON.stringify({ itemId: estado.selecionado }),
       });
-
       fecharDialogo();
 
       if (resposta.status === 201) {
-        salvarVotoLocal(resposta.dados.voto);
-        exibirObrigado(resposta.dados.voto, { jaHavia: false });
-        el.obrigado.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        el.obrigado.focus({ preventScroll: true });
-      } else if (resposta.status === 409) {
-        salvarVotoLocal(null);
-        exibirObrigado(null, { jaHavia: true });
+        exibirObrigado(itemSelecionado());
       } else if (resposta.status === 403) {
         mostrarPainel('encerrado');
       } else {
-        mostrarErroGeral(resposta.dados.erro || 'Não foi possível registrar seu voto. Tente novamente.');
+        mostrarErroGeral(resposta.dados.erro || 'Não foi possível registrar o voto. Tente novamente.');
       }
     } catch (erro) {
       fecharDialogo();
-      mostrarErroGeral('Não foi possível enviar seu voto. Verifique sua conexão e tente novamente.');
+      mostrarErroGeral('Não foi possível enviar o voto. Verifique a conexão e tente novamente.');
     } finally {
       definirEnviando(false);
     }
   }
 
+  // ---------- Agradecimento e volta para um novo voto ----------
+
+  function exibirObrigado(item) {
+    if (item) {
+      el.escolhaNome.textContent = item.nome;
+      el.escolhaImagem.src = item.imagem;
+      el.escolhaImagem.alt = item.nome;
+      el.escolha.hidden = false;
+    } else {
+      el.escolha.hidden = true;
+    }
+    mostrarPainel('obrigado');
+    el.secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    el.obrigado.focus({ preventScroll: true });
+    iniciarContagem();
+  }
+
+  function iniciarContagem() {
+    pararContagem();
+    let restante = SEGUNDOS_AGRADECIMENTO;
+    const atualizar = () => {
+      el.contagem.textContent = `A votação será liberada para o próximo colaborador em ${restante} s…`;
+    };
+    atualizar();
+    estado.temporizador = window.setInterval(() => {
+      restante -= 1;
+      if (restante <= 0) {
+        prepararNovoVoto();
+      } else {
+        atualizar();
+      }
+    }, 1000);
+  }
+
+  function pararContagem() {
+    if (estado.temporizador) window.clearInterval(estado.temporizador);
+    estado.temporizador = null;
+  }
+
+  function prepararNovoVoto() {
+    pararContagem();
+    estado.selecionado = null;
+    $$('.opcao', el.opcoes).forEach((cartao) => {
+      cartao.classList.remove('is-selecionada');
+      $('.opcao__entrada', cartao).checked = false;
+      $('.opcao__acao', cartao).textContent = 'Escolher este item';
+    });
+    el.erroItem.textContent = '';
+    el.erroGeral.hidden = true;
+    mostrarPainel('formulario');
+    el.secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   // ---------- Carregamento ----------
 
   async function carregar() {
-    const votoLocal = lerVotoLocal();
-    if (votoLocal) {
-      exibirObrigado(votoLocal, { jaHavia: true });
-    } else {
-      mostrarPainel('carregando');
-    }
-
+    mostrarPainel('carregando');
     try {
-      const [respostaItens, respostaStatus] = await Promise.all([
-        chamarApi('/api/itens'),
-        chamarApi('/api/status'),
-      ]);
-      if (!respostaItens.ok || !respostaStatus.ok) throw new Error('Falha na API');
+      const resposta = await chamarApi('/api/itens');
+      if (!resposta.ok) throw new Error('Falha na API');
 
-      const status = respostaStatus.dados;
-
-      // O servidor reconhece este navegador (cookie) como já votante
-      if (status.jaVotou) {
-        const voto = status.voto || votoLocal;
-        salvarVotoLocal(voto);
-        exibirObrigado(voto, { jaHavia: true });
-        return;
-      }
-
-      // O navegador guardou o voto localmente: continua bloqueado
-      if (votoLocal) return;
-
-      const { itens, setores, votacao } = respostaItens.dados;
+      const { itens, votacao } = resposta.dados;
       if (votacao && !votacao.aberta) {
         mostrarPainel('encerrado');
-        atualizarChamadas('Ver aviso');
         return;
       }
 
       estado.itens = itens || [];
       renderizarItens(estado.itens);
-      preencherSetores(setores);
       exibirPrazo(votacao);
       mostrarPainel('formulario');
     } catch (erro) {
-      if (!votoLocal) mostrarPainel('falha');
+      mostrarPainel('falha');
     }
   }
 
@@ -396,14 +294,14 @@
   el.formulario.addEventListener('submit', (evento) => {
     evento.preventDefault();
     el.erroGeral.hidden = true;
-    if (validarFormulario()) abrirConfirmacao();
-  });
-
-  el.nome.addEventListener('input', () => {
-    if (el.nome.getAttribute('aria-invalid') === 'true' && limparTexto(el.nome.value).length >= 3) {
-      el.nome.removeAttribute('aria-invalid');
-      el.erroNome.textContent = '';
+    if (!estado.selecionado) {
+      el.erroItem.textContent = 'Escolha um dos itens acima para votar.';
+      el.opcoes.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const primeira = $('.opcao__entrada', el.opcoes);
+      if (primeira) primeira.focus({ preventScroll: true });
+      return;
     }
+    abrirConfirmacao();
   });
 
   el.confirmar.addEventListener('click', (evento) => {
@@ -415,6 +313,7 @@
     if (estado.enviando) evento.preventDefault();
   });
 
+  el.novoVoto.addEventListener('click', prepararNovoVoto);
   el.tentarNovamente.addEventListener('click', carregar);
 
   preencherAno();

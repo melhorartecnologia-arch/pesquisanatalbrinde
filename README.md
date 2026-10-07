@@ -5,8 +5,9 @@ fim de ano, com área administrativa protegida por senha para consolidar o resul
 
 - **100% JavaScript**: Node.js + Express no servidor, HTML/CSS/JS puro no navegador
 - **Banco PostgreSQL** (tabelas criadas automaticamente ao subir o servidor)
-- **Um voto por pessoa**: depois de votar, o navegador fica marcado e não deixa votar de novo
-- **Área administrativa** (`/admin`) com senha única, gráfico, totais por setor, lista de votos,
+- **Votação livre, estilo totem**: o colaborador escolhe o item e confirma, sem nome nem setor;
+  a tela agradece e volta sozinha para o próximo voto (ideal para um tablet ou computador compartilhado)
+- **Área administrativa** (`/admin`) com senha única, gráfico, totais por dia, lista de votos,
   exclusão de votos duplicados e exportação em CSV (abre direto no Excel)
 
 ## Itens em votação
@@ -54,18 +55,17 @@ Depois acesse:
 
 ## Configuração (`.env`)
 
-| Variável              | Obrigatória | Descrição                                                                                |
-| --------------------- | ----------- | ---------------------------------------------------------------------------------------- |
-| `DATABASE_URL`        | sim         | Conexão do PostgreSQL, ex.: `postgres://usuario:senha@host:5432/banco`                   |
-| `ADMIN_PASSWORD`      | sim         | Senha única da área administrativa                                                       |
-| `SESSION_SECRET`      | sim\*       | Segredo para assinar os cookies. \*Sem ele, os cookies perdem a validade a cada reinício |
-| `PORT`                | não         | Porta HTTP (padrão `3000`)                                                               |
-| `DATABASE_SSL`        | não         | `true` para bancos gerenciados que exigem SSL                                            |
-| `ADMIN_SESSION_HOURS` | não         | Duração do login do admin (padrão `8` horas)                                             |
-| `VOTACAO_ENCERRA_EM`  | não         | Data/hora de encerramento, ex.: `2026-12-05T23:59:59-03:00`                              |
-| `SETORES`             | não         | Sugestões de setor no formulário, separadas por vírgula                                  |
-| `FUSO_HORARIO`        | não         | Fuso de "votos hoje" e das datas no CSV (padrão `America/Sao_Paulo`)                     |
-| `TRUST_PROXY`         | não         | Use `1` se estiver atrás de Nginx/IIS/load balancer                                      |
+| Variável              | Obrigatória | Descrição                                                                     |
+| --------------------- | ----------- | ----------------------------------------------------------------------------- |
+| `DATABASE_URL`        | sim         | Conexão do PostgreSQL, ex.: `postgres://usuario:senha@host:5432/banco`        |
+| `ADMIN_PASSWORD`      | sim         | Senha única da área administrativa                                            |
+| `SESSION_SECRET`      | sim\*       | Segredo para assinar o login do admin. \*Sem ele, o login cai a cada reinício |
+| `PORT`                | não         | Porta HTTP (padrão `3000`)                                                    |
+| `DATABASE_SSL`        | não         | `true` para bancos gerenciados que exigem SSL                                 |
+| `ADMIN_SESSION_HOURS` | não         | Duração do login do admin (padrão `8` horas)                                  |
+| `VOTACAO_ENCERRA_EM`  | não         | Data/hora de encerramento, ex.: `2026-12-05T23:59:59-03:00`                   |
+| `FUSO_HORARIO`        | não         | Fuso de "votos hoje" e das datas no CSV (padrão `America/Sao_Paulo`)          |
+| `TRUST_PROXY`         | não         | Use `1` se estiver atrás de Nginx/IIS/load balancer                           |
 
 Para gerar um `SESSION_SECRET`:
 
@@ -73,20 +73,16 @@ Para gerar um `SESSION_SECRET`:
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-## Como funciona o "um voto por pessoa"
+## Como funciona a votação
 
-Ao votar, o bloqueio fica gravado no navegador do colaborador de três formas:
+1. O colaborador toca no item que prefere e em **Confirmar meu voto**.
+2. Uma janela pede a confirmação; ao confirmar, o voto é gravado.
+3. Aparece "Obrigado pelo seu voto!" por 6 segundos e a tela volta sozinha para a escolha,
+   pronta para o próximo colaborador (ou toque em **Registrar outro voto agora**).
 
-1. **`localStorage`** — o navegador guarda o voto e, ao reabrir a página, mostra
-   "Voto registrado" no lugar do formulário.
-2. **Cookie assinado** (`cci_votou`, `HttpOnly`, válido por 2 anos) — mesmo que o
-   `localStorage` seja apagado, o servidor recusa um segundo voto.
-3. **Identificador do navegador** (`cci_dispositivo`) — único no banco de dados
-   (`UNIQUE`), então o mesmo navegador nunca grava dois votos.
-
-Como a pesquisa não exige login, alguém que use outro navegador, aba anônima ou outro aparelho
-consegue votar de novo. Por isso o painel destaca **nomes repetidos** e permite **excluir** o voto
-duplicado antes de consolidar o resultado.
+Não há trava por navegador nem identificação: cada confirmação conta um voto. Para descartar um
+voto registrado por engano, use o botão **Excluir** no painel. O tempo da tela de agradecimento
+fica na constante `SEGUNDOS_AGRADECIMENTO`, em `public/js/site.js`.
 
 ## Área administrativa
 
@@ -94,8 +90,8 @@ Em `/admin`, digite a senha definida em `ADMIN_PASSWORD`. O painel mostra:
 
 - total de votos, item na liderança (ou empate), votos do dia e horário do último voto;
 - gráfico de votos por item com percentual;
-- tabela de votos por setor;
-- lista completa de votos com busca, filtro por item, filtro "só nomes repetidos" e botão de exclusão;
+- tabela de votos por dia;
+- lista completa de votos com filtro por item e botão de exclusão;
 - exportação **Resumo (CSV)** e **Votos (CSV)**, no padrão do Excel em português (separador `;`).
 
 O painel se atualiza sozinho a cada 30 segundos. Após 10 senhas erradas, o IP fica bloqueado por
@@ -116,32 +112,31 @@ O painel se atualiza sozinho a cada 30 segundos. Após 10 senhas erradas, o IP f
     ├── seguranca.js       # cabeçalhos de segurança e limite de tentativas
     ├── votacao.js         # regras comuns da votação
     └── rotas/
-        ├── publicas.js    # GET /api/itens, GET /api/status, POST /api/votos
+        ├── publicas.js    # GET /api/itens, POST /api/votos
         └── admin.js       # login, resultado, votos, exclusão e CSV
 ```
 
 ## API
 
-| Método | Rota                             | Descrição                                 |
-| ------ | -------------------------------- | ----------------------------------------- |
-| GET    | `/api/itens`                     | Itens ativos, setores e status da votação |
-| GET    | `/api/status`                    | Se este navegador já votou                |
-| POST   | `/api/votos`                     | Registra o voto `{ itemId, nome, setor }` |
-| POST   | `/api/admin/login`               | Login `{ senha }`                         |
-| POST   | `/api/admin/logout`              | Encerra a sessão                          |
-| GET    | `/api/admin/resultado`           | Totais, percentuais e votos por setor     |
-| GET    | `/api/admin/votos`               | Lista de votos                            |
-| DELETE | `/api/admin/votos/:id`           | Exclui um voto                            |
-| GET    | `/api/admin/exportar/resumo.csv` | Resultado consolidado em CSV              |
-| GET    | `/api/admin/exportar/votos.csv`  | Todos os votos em CSV                     |
-| GET    | `/api/saude`                     | Verificação de saúde (app + banco)        |
+| Método | Rota                             | Descrição                           |
+| ------ | -------------------------------- | ----------------------------------- |
+| GET    | `/api/itens`                     | Itens ativos e status da votação    |
+| POST   | `/api/votos`                     | Registra o voto `{ itemId }`        |
+| POST   | `/api/admin/login`               | Login `{ senha }`                   |
+| POST   | `/api/admin/logout`              | Encerra a sessão                    |
+| GET    | `/api/admin/resultado`           | Totais, percentuais e votos por dia |
+| GET    | `/api/admin/votos`               | Lista de votos                      |
+| DELETE | `/api/admin/votos/:id`           | Exclui um voto                      |
+| GET    | `/api/admin/exportar/resumo.csv` | Resultado consolidado em CSV        |
+| GET    | `/api/admin/exportar/votos.csv`  | Todos os votos em CSV               |
+| GET    | `/api/saude`                     | Verificação de saúde (app + banco)  |
 
 ## Publicação
 
 **Passo a passo para servidor Ubuntu na AWS (sem Docker): [PUBLICAR-AWS.md](PUBLICAR-AWS.md).**
 Os arquivos prontos de configuração do Nginx e do serviço (systemd) ficam em [`deploy/`](deploy/).
 
-- Publique atrás de **HTTPS** (os cookies passam a ser marcados como `Secure` automaticamente;
+- Publique atrás de **HTTPS** (o cookie de login do admin passa a ser `Secure` automaticamente;
   com proxy reverso, defina `TRUST_PROXY=1`).
 - O limite de tentativas de login fica em memória: rode **uma instância** do app.
 - Faça backup do banco antes de excluir votos: `pg_dump pesquisa_natal > backup.sql`.

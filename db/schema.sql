@@ -15,13 +15,19 @@ CREATE TABLE IF NOT EXISTS itens (
 CREATE TABLE IF NOT EXISTS votos (
   id             SERIAL PRIMARY KEY,
   item_id        INTEGER     NOT NULL REFERENCES itens (id),
-  nome           TEXT        NOT NULL,
+  nome           TEXT,
   setor          TEXT,
-  dispositivo_id UUID        NOT NULL UNIQUE,
+  dispositivo_id UUID,
   ip             TEXT,
   user_agent     TEXT,
   criado_em      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Votação livre (sem nome/setor e sem trava por navegador).
+-- Ajusta bancos criados pela versão anterior, preservando os votos existentes.
+ALTER TABLE votos ALTER COLUMN nome DROP NOT NULL;
+ALTER TABLE votos ALTER COLUMN dispositivo_id DROP NOT NULL;
+ALTER TABLE votos DROP CONSTRAINT IF EXISTS votos_dispositivo_id_key;
 
 CREATE INDEX IF NOT EXISTS votos_item_id_idx ON votos (item_id);
 CREATE INDEX IF NOT EXISTS votos_criado_em_idx ON votos (criado_em);

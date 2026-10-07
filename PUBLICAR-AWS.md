@@ -192,7 +192,7 @@ automaticamente para `https://`. A renovação do certificado é automática.
 
 ## 10. Conferir
 
-1. Abra o site, vote e recarregue a página: deve aparecer **"Voto registrado"**.
+1. Abra o site e vote: deve aparecer **"Obrigado pelo seu voto!"** e, após alguns segundos, a tela volta para a escolha.
 2. Abra `/admin`, entre com a `ADMIN_PASSWORD` e confira o voto.
 3. **Exclua os votos de teste** no painel antes de divulgar o link para os colaboradores.
 
@@ -219,3 +219,16 @@ automaticamente para `https://`. A renovação do certificado é automática.
 | Certbot: `Could not automatically find a matching server block` | O `server_name` do Nginx não é o domínio. Faça a primeira parte do passo 9 e rode `sudo certbot install --cert-name SEU_DOMINIO --redirect`. |
 | HTTP abre, HTTPS não abre                                       | Libere a porta **443** no Security Group (EC2) ou no firewall da instância (Lightsail).                                                      |
 | `ADMIN_PASSWORD` não definida nos logs                          | Falta a linha `ADMIN_PASSWORD=` no `.env`.                                                                                                   |
+
+## Atualizar um servidor que já está no ar
+
+Para aplicar uma nova versão (por exemplo, a votação livre sem nome/setor):
+
+```bash
+cd ~/pesquisanatalbrinde
+git pull
+npm ci --omit=dev
+sudo systemctl restart pesquisa-natal
+```
+
+O banco é ajustado automaticamente ao reiniciar e os votos já registrados são mantidos.

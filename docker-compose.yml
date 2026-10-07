@@ -28,7 +28,6 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Defina ADMIN_PASSWORD no arquivo .env}
       SESSION_SECRET: ${SESSION_SECRET:?Defina SESSION_SECRET no arquivo .env}
       VOTACAO_ENCERRA_EM: ${VOTACAO_ENCERRA_EM:-}
-      SETORES: ${SETORES:-}
       TRUST_PROXY: ${TRUST_PROXY:-}
 
 volumes:

@@ -11,27 +11,6 @@ function lerTrustProxy(valor) {
   return valor;
 }
 
-const SETORES_PADRAO = [
-  'Administrativo',
-  'Comercial',
-  'Financeiro',
-  'Logística',
-  'Manutenção',
-  'Marketing',
-  'Produção',
-  'Qualidade',
-  'Recursos Humanos',
-  'TI',
-];
-
-function lerLista(valor, padrao) {
-  if (!valor) return padrao;
-  return valor
-    .split(',')
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
 function lerData(valor, nome) {
   if (!valor) return null;
   const data = new Date(valor);
@@ -51,7 +30,6 @@ const config = {
   trustProxy: lerTrustProxy(process.env.TRUST_PROXY),
   fusoHorario: process.env.FUSO_HORARIO || 'America/Sao_Paulo',
   votacaoEncerraEm: lerData(process.env.VOTACAO_ENCERRA_EM, 'VOTACAO_ENCERRA_EM'),
-  setores: lerLista(process.env.SETORES, SETORES_PADRAO),
 };
 
 // Validação feita só ao subir o servidor (o db:init não precisa da senha)

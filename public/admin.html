@@ -134,19 +134,19 @@
             <p class="vazio js-grafico-vazio" hidden>Ainda não há votos registrados.</p>
           </section>
 
-          <!-- Por setor -->
-          <section class="cartao" aria-labelledby="titulo-setor">
+          <!-- Por dia -->
+          <section class="cartao" aria-labelledby="titulo-dia">
             <header class="cartao__cabecalho">
-              <h2 id="titulo-setor" class="cartao__titulo">Votos por setor</h2>
-              <p class="cartao__subtitulo">Como cada área votou</p>
+              <h2 id="titulo-dia" class="cartao__titulo">Votos por dia</h2>
+              <p class="cartao__subtitulo">Quantos votos cada item recebeu em cada dia</p>
             </header>
             <div class="tabela-rolagem">
               <table class="tabela tabela--numeros">
-                <thead class="js-setor-cabecalho"></thead>
-                <tbody class="js-setor-corpo"></tbody>
+                <thead class="js-dia-cabecalho"></thead>
+                <tbody class="js-dia-corpo"></tbody>
               </table>
             </div>
-            <p class="vazio js-setor-vazio" hidden>Sem dados por setor ainda.</p>
+            <p class="vazio js-dia-vazio" hidden>Ainda não há votos registrados.</p>
           </section>
         </div>
 
@@ -159,22 +159,10 @@
             </div>
             <div class="filtros">
               <label class="filtros__campo">
-                <span class="sr-only">Buscar por nome ou setor</span>
-                <input
-                  class="campo__entrada campo__entrada--compacta js-busca"
-                  type="search"
-                  placeholder="Buscar nome ou setor…"
-                />
-              </label>
-              <label class="filtros__campo">
                 <span class="sr-only">Filtrar por item</span>
                 <select class="campo__entrada campo__entrada--compacta js-filtro-item">
                   <option value="">Todos os itens</option>
                 </select>
-              </label>
-              <label class="filtros__marcar">
-                <input type="checkbox" class="js-filtro-repetidos" />
-                Só nomes repetidos
               </label>
             </div>
           </header>
@@ -183,8 +171,7 @@
             <table class="tabela tabela--votos">
               <thead>
                 <tr>
-                  <th scope="col">Nome</th>
-                  <th scope="col">Setor</th>
+                  <th scope="col">Nº</th>
                   <th scope="col">Item escolhido</th>
                   <th scope="col">Data/hora</th>
                   <th scope="col"><span class="sr-only">Ações</span></th>
@@ -205,9 +192,9 @@
         <div class="dialogo__corpo">
           <h2 id="titulo-excluir" class="dialogo__titulo">Excluir este voto?</h2>
           <p class="dialogo__texto">
-            O voto de <strong class="js-excluir-nome"></strong> em
+            O voto nº <strong class="js-excluir-numero"></strong> em
             <strong class="js-excluir-item"></strong> será removido da apuração. Use para descartar votos
-            duplicados ou inválidos.
+            registrados por engano.
           </p>
         </div>
         <div class="dialogo__acoes">

@@ -608,67 +608,19 @@ body {
   color: var(--azul);
 }
 
-/* Identificação */
-.identificacao {
-  max-width: 880px;
-  margin: clamp(28px, 4vw, 44px) auto 0;
-  padding: clamp(22px, 3.4vw, 36px);
-  border: 1px solid var(--linha);
-  border-radius: 24px;
-  background: var(--superficie);
-  box-shadow: var(--sombra-2);
-}
-
-.identificacao__titulo {
-  font-size: 24px;
-}
-
-.identificacao__texto {
-  margin-top: 4px;
-  color: var(--tinta-2);
-  font-size: 15px;
-}
-
-.identificacao__campos {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 16px 20px;
-  margin-top: 22px;
-}
-
-.identificacao__rodape {
+/* Envio do voto */
+.enviar {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
   gap: 16px;
-  margin-top: 22px;
-  padding-top: 22px;
-  border-top: 1px solid var(--linha);
-}
-
-.identificacao__aviso {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: var(--tinta-3);
-}
-
-.identificacao__aviso svg {
-  width: 16px;
-  flex: none;
-  color: var(--dourado);
+  margin-top: clamp(28px, 4vw, 40px);
 }
 
 .botao--grande {
-  min-height: 56px;
-  padding: 14px 32px;
-  font-size: 17px;
-}
-
-.identificacao .alerta {
-  margin-top: 16px;
+  min-height: 60px;
+  padding: 16px 40px;
+  font-size: 18px;
 }
 
 /* Diálogo de confirmação */
@@ -697,12 +649,6 @@ body {
   font-size: 19px;
   font-weight: 700;
   line-height: 1.25;
-}
-
-.confirmacao__nome {
-  margin-top: 4px;
-  font-size: 14.5px;
-  color: var(--tinta-2);
 }
 
 /* Agradecimento */
@@ -793,14 +739,8 @@ body {
   line-height: 1.25;
 }
 
-.escolha__data {
-  margin-top: 4px;
-  font-size: 14px;
-  color: var(--tinta-2);
-}
-
 .obrigado__nota {
-  margin-top: 28px;
+  margin: 28px 0 16px;
   font-size: 14.5px;
   color: var(--tinta-3);
 }
@@ -887,17 +827,13 @@ body {
     margin: 0 0 2px;
     font-size: 19px;
   }
-
-  .identificacao__campos {
-    grid-template-columns: 1fr;
-  }
-
-  .identificacao__rodape .botao {
-    width: 100%;
-  }
 }
 
 @media (max-width: 480px) {
+  .enviar .botao--grande {
+    width: 100%;
+  }
+
   .topo__acao {
     padding: 8px 14px;
   }

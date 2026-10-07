@@ -54,8 +54,8 @@
               <em>O brinde, você escolhe.</em>
             </h1>
             <p class="hero__descricao">
-              Qual destes itens você quer receber na cesta de fim de ano da Cervejaria Cidade Imperial?
-              Escolha o seu favorito e confirme com o seu nome. Cada colaborador vota uma única vez.
+              Qual destes itens você quer receber na cesta de fim de ano da Cervejaria Cidade Imperial? Toque
+              no seu favorito e confirme o voto. É rápido e não precisa se identificar.
             </p>
             <div class="hero__acoes">
               <a class="botao js-ir-votar" href="#votar">
@@ -122,7 +122,7 @@
             <li class="passo">
               <span class="passo__numero">03</span>
               <h3 class="passo__titulo">Confirme seu voto</h3>
-              <p>Informe seu nome e confirme. É um voto por pessoa.</p>
+              <p>Toque em confirmar e pronto: seu voto é registrado.</p>
             </li>
           </ol>
         </div>
@@ -162,59 +162,11 @@
               <p class="campo__erro opcoes__erro js-erro-item" role="alert"></p>
             </fieldset>
 
-            <div class="identificacao">
-              <div class="identificacao__cabecalho">
-                <h3 class="identificacao__titulo">Quem está votando?</h3>
-                <p class="identificacao__texto">
-                  Usamos seu nome apenas para garantir um voto por colaborador.
-                </p>
-              </div>
-
-              <div class="identificacao__campos">
-                <label class="campo">
-                  <span class="campo__rotulo">Nome completo</span>
-                  <input
-                    class="campo__entrada js-nome"
-                    type="text"
-                    name="nome"
-                    autocomplete="name"
-                    maxlength="120"
-                    placeholder="Ex.: Maria da Silva"
-                    required
-                  />
-                  <span class="campo__erro js-erro-nome" role="alert"></span>
-                </label>
-
-                <label class="campo">
-                  <span class="campo__rotulo">Setor <small>(opcional)</small></span>
-                  <input
-                    class="campo__entrada js-setor"
-                    type="text"
-                    name="setor"
-                    maxlength="80"
-                    list="lista-setores"
-                    placeholder="Ex.: Produção"
-                    autocomplete="off"
-                  />
-                  <datalist id="lista-setores" class="js-setores"></datalist>
-                </label>
-              </div>
-
-              <div class="identificacao__rodape">
-                <p class="identificacao__aviso">
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                      fill="currentColor"
-                      d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5Zm-3 8V7a3 3 0 1 1 6 0v3H9Z"
-                    />
-                  </svg>
-                  Depois de confirmado, o voto não pode ser alterado.
-                </p>
-                <button type="submit" class="botao botao--grande">
-                  Confirmar meu voto
-                  <span class="botao__seta" aria-hidden="true">→</span>
-                </button>
-              </div>
+            <div class="enviar">
+              <button type="submit" class="botao botao--grande">
+                Confirmar meu voto
+                <span class="botao__seta" aria-hidden="true">→</span>
+              </button>
               <p class="alerta js-erro-geral" role="alert" hidden></p>
             </div>
           </form>
@@ -227,24 +179,21 @@
               </svg>
             </div>
             <p class="sobretitulo">Voto registrado</p>
-            <h2 class="obrigado__titulo js-obrigado-titulo">Obrigado pelo seu voto!</h2>
-            <p class="obrigado__texto js-obrigado-texto">
-              Sua escolha já foi computada. Agora é só aguardar a cesta de fim de ano.
-            </p>
+            <h2 class="obrigado__titulo">Obrigado pelo seu voto!</h2>
+            <p class="obrigado__texto">Sua escolha já foi computada. Boas festas! 🎄</p>
 
             <div class="escolha js-escolha" hidden>
               <img class="escolha__imagem js-escolha-imagem" src="" alt="" />
               <div>
-                <p class="escolha__rotulo">Você escolheu</p>
+                <p class="escolha__rotulo">Voto registrado para</p>
                 <p class="escolha__nome js-escolha-nome"></p>
-                <p class="escolha__data js-escolha-data"></p>
               </div>
             </div>
 
-            <p class="obrigado__nota">
-              Este navegador já registrou um voto, por isso a votação fica bloqueada aqui.
-              <br />Boas festas para você e sua família! 🎄
-            </p>
+            <p class="obrigado__nota js-contagem" aria-live="polite"></p>
+            <button type="button" class="botao botao--secundario js-novo-voto">
+              Registrar outro voto agora
+            </button>
           </div>
 
           <!-- Votação encerrada -->
@@ -282,10 +231,9 @@
             <img class="confirmacao__imagem js-confirmacao-imagem" src="" alt="" />
             <div>
               <p class="confirmacao__item js-confirmacao-item"></p>
-              <p class="confirmacao__nome js-confirmacao-nome"></p>
             </div>
           </div>
-          <p class="dialogo__texto">Depois de confirmado, não será possível votar de novo.</p>
+          <p class="dialogo__texto">Confira o item escolhido antes de confirmar.</p>
         </div>
         <div class="dialogo__acoes">
           <button type="submit" value="cancelar" class="botao botao--secundario">Voltar</button>

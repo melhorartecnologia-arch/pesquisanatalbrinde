@@ -479,10 +479,10 @@
 }
 
 .tabela--votos {
-  min-width: 680px;
+  min-width: 480px;
 }
 
-.tabela--votos td:nth-child(4) {
+.tabela--votos td:nth-child(3) {
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
   color: var(--tinta-2);
@@ -495,22 +495,6 @@
 
 .tabela__nome {
   font-weight: 600;
-}
-
-.tabela__repetido {
-  display: inline-block;
-  margin-left: 8px;
-  padding: 1px 8px;
-  border-radius: 999px;
-  background: var(--dourado-claro);
-  color: #7a5713;
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.tabela__vazio {
-  color: var(--tinta-3);
 }
 
 .botao-texto {
@@ -548,25 +532,6 @@
   font-size: 14.5px;
 }
 
-.filtros__campo .campo__entrada--compacta[type='search'] {
-  width: 230px;
-}
-
-.filtros__marcar {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: var(--tinta-2);
-  cursor: pointer;
-}
-
-.filtros__marcar input {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--azul);
-}
-
 /* ---------- Responsivo ---------- */
 
 @media (max-width: 1020px) {
@@ -601,8 +566,7 @@
   }
 
   .filtros,
-  .filtros__campo,
-  .filtros__campo .campo__entrada--compacta[type='search'] {
+  .filtros__campo {
     width: 100%;
   }
 

@@ -29,18 +29,16 @@
     ultimoDetalhe: $('.js-ultimo-detalhe'),
     grafico: $('.js-grafico'),
     graficoVazio: $('.js-grafico-vazio'),
-    setorCabecalho: $('.js-setor-cabecalho'),
-    setorCorpo: $('.js-setor-corpo'),
-    setorVazio: $('.js-setor-vazio'),
+    diaCabecalho: $('.js-dia-cabecalho'),
+    diaCorpo: $('.js-dia-corpo'),
+    diaVazio: $('.js-dia-vazio'),
     votosCorpo: $('.js-votos-corpo'),
     votosVazio: $('.js-votos-vazio'),
     votosContagem: $('.js-votos-contagem'),
-    busca: $('.js-busca'),
     filtroItem: $('.js-filtro-item'),
-    filtroRepetidos: $('.js-filtro-repetidos'),
     dica: $('.js-dica'),
     dialogoExcluir: $('.js-dialogo-excluir'),
-    excluirNome: $('.js-excluir-nome'),
+    excluirNumero: $('.js-excluir-numero'),
     excluirItem: $('.js-excluir-item'),
     confirmarExclusao: $('.js-confirmar-exclusao'),
   };
@@ -115,15 +113,6 @@
     if (horas < 24) return `há ${horas} h`;
     const dias = Math.round(horas / 24);
     return dias === 1 ? 'há 1 dia' : `há ${dias} dias`;
-  }
-
-  function normalizarNome(nome) {
-    return String(nome || '')
-      .normalize('NFD')
-      .replace(/[̀-ͯ]/g, '')
-      .toLowerCase()
-      .replace(/\s+/g, ' ')
-      .trim();
   }
 
   // ---------- Telas ----------
@@ -219,7 +208,7 @@
 
       renderizarIndicadores();
       renderizarGrafico();
-      renderizarSetores();
+      renderizarDias();
       atualizarFiltroItens();
       renderizarVotos();
 
@@ -375,30 +364,30 @@
 
   window.addEventListener('scroll', esconderDica, { passive: true });
 
-  // ---------- Tabela por setor ----------
+  // ---------- Tabela por dia ----------
 
-  function renderizarSetores() {
+  function renderizarDias() {
     const r = estado.resultado;
-    el.setorVazio.hidden = r.porSetor.length > 0;
-    el.setorCabecalho.replaceChildren();
-    el.setorCorpo.replaceChildren();
-    const tabela = el.setorCorpo.closest('table');
+    el.diaVazio.hidden = r.porDia.length > 0;
+    el.diaCabecalho.replaceChildren();
+    el.diaCorpo.replaceChildren();
+    const tabela = el.diaCorpo.closest('table');
     const rodapeAntigo = tabela.querySelector('tfoot');
     if (rodapeAntigo) rodapeAntigo.remove();
-    if (r.porSetor.length === 0) return;
+    if (r.porDia.length === 0) return;
 
-    el.setorCabecalho.append(
+    el.diaCabecalho.append(
       criar('tr', {}, [
-        criar('th', { scope: 'col', texto: 'Setor' }),
+        criar('th', { scope: 'col', texto: 'Dia' }),
         ...r.itens.map((item) => criar('th', { scope: 'col', texto: item.nome })),
         criar('th', { scope: 'col', texto: 'Total' }),
       ]),
     );
 
-    r.porSetor.forEach((grupo) => {
-      el.setorCorpo.append(
+    r.porDia.forEach((grupo) => {
+      el.diaCorpo.append(
         criar('tr', {}, [
-          criar('td', { texto: grupo.setor }),
+          criar('td', { texto: grupo.dia }),
           ...r.itens.map((item) => criar('td', { texto: formatoNumero.format(grupo.votos[item.id] || 0) })),
           criar('td', { texto: formatoNumero.format(grupo.total) }),
         ]),
@@ -427,57 +416,29 @@
     el.filtroItem.value = $$('option', el.filtroItem).some((opcao) => opcao.value === atual) ? atual : '';
   }
 
-  function nomesRepetidos() {
-    const contagem = new Map();
-    estado.votos.forEach((voto) => {
-      const chave = normalizarNome(voto.nome);
-      contagem.set(chave, (contagem.get(chave) || 0) + 1);
-    });
-    return new Set([...contagem].filter(([, quantidade]) => quantidade > 1).map(([chave]) => chave));
-  }
-
   function renderizarVotos() {
-    const repetidos = nomesRepetidos();
-    const termo = normalizarNome(el.busca.value);
     const itemFiltro = el.filtroItem.value;
-    const somenteRepetidos = el.filtroRepetidos.checked;
+    const filtrados = estado.votos.filter((voto) => !itemFiltro || String(voto.itemId) === itemFiltro);
 
-    const filtrados = estado.votos.filter((voto) => {
-      if (itemFiltro && String(voto.itemId) !== itemFiltro) return false;
-      if (somenteRepetidos && !repetidos.has(normalizarNome(voto.nome))) return false;
-      if (termo) {
-        const alvo = `${normalizarNome(voto.nome)} ${normalizarNome(voto.setor)}`;
-        if (!alvo.includes(termo)) return false;
-      }
-      return true;
-    });
-
-    const partes = [
-      `${formatoNumero.format(filtrados.length)} de ${plural(estado.votos.length, 'voto', 'votos')}`,
-    ];
-    if (repetidos.size > 0) {
-      partes.push(`${plural(repetidos.size, 'nome aparece', 'nomes aparecem')} mais de uma vez`);
-    }
-    el.votosContagem.textContent = partes.join(' · ');
+    el.votosContagem.textContent = `${formatoNumero.format(filtrados.length)} de ${plural(
+      estado.votos.length,
+      'voto',
+      'votos',
+    )}`;
 
     el.votosVazio.hidden = filtrados.length > 0;
     el.votosCorpo.replaceChildren(
       ...filtrados.map((voto) => {
-        const celulaNome = criar('td', {}, [criar('span', { classe: 'tabela__nome', texto: voto.nome })]);
-        if (repetidos.has(normalizarNome(voto.nome))) {
-          celulaNome.append(criar('span', { classe: 'tabela__repetido', texto: 'Nome repetido' }));
-        }
         const botaoExcluir = criar('button', {
           type: 'button',
           classe: 'botao-texto',
           texto: 'Excluir',
-          'aria-label': `Excluir voto de ${voto.nome}`,
+          'aria-label': `Excluir voto nº ${voto.id}`,
         });
         botaoExcluir.addEventListener('click', () => pedirExclusao(voto));
 
         return criar('tr', {}, [
-          celulaNome,
-          criar('td', voto.setor ? { texto: voto.setor } : { classe: 'tabela__vazio', texto: '—' }),
+          criar('td', { classe: 'tabela__nome', texto: String(voto.id) }),
           criar('td', { texto: voto.itemNome }),
           criar('td', { texto: voto.dataFormatada }),
           criar('td', {}, [botaoExcluir]),
@@ -486,15 +447,13 @@
     );
   }
 
-  el.busca.addEventListener('input', renderizarVotos);
   el.filtroItem.addEventListener('change', renderizarVotos);
-  el.filtroRepetidos.addEventListener('change', renderizarVotos);
 
   // ---------- Exclusão ----------
 
   function pedirExclusao(voto) {
     estado.votoParaExcluir = voto;
-    el.excluirNome.textContent = voto.nome;
+    el.excluirNumero.textContent = String(voto.id);
     el.excluirItem.textContent = voto.itemNome;
     el.dialogoExcluir.showModal();
   }
