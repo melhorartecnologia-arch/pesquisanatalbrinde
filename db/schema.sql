@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS votos (
   nome           TEXT,
   setor          TEXT,
   dispositivo_id UUID,
+  matricula      TEXT,
   ip             TEXT,
   user_agent     TEXT,
   criado_em      TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -28,6 +29,11 @@ CREATE TABLE IF NOT EXISTS votos (
 ALTER TABLE votos ALTER COLUMN nome DROP NOT NULL;
 ALTER TABLE votos ALTER COLUMN dispositivo_id DROP NOT NULL;
 ALTER TABLE votos DROP CONSTRAINT IF EXISTS votos_dispositivo_id_key;
+
+-- Matrícula do votante: obrigatória para votar e única (um voto por matrícula).
+-- Votos antigos, sem matrícula, continuam valendo.
+ALTER TABLE votos ADD COLUMN IF NOT EXISTS matricula TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS votos_matricula_unica ON votos (matricula) WHERE matricula IS NOT NULL;
 
 CREATE INDEX IF NOT EXISTS votos_item_id_idx ON votos (item_id);
 CREATE INDEX IF NOT EXISTS votos_criado_em_idx ON votos (criado_em);

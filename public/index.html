@@ -122,7 +122,7 @@
             <li class="passo">
               <span class="passo__numero">03</span>
               <h3 class="passo__titulo">Confirme seu voto</h3>
-              <p>Toque em confirmar e pronto: seu voto é registrado.</p>
+              <p>Digite o código da sua matrícula e confirme o voto.</p>
             </li>
           </ol>
         </div>
@@ -163,6 +163,21 @@
             </fieldset>
 
             <div class="enviar">
+              <label class="campo matricula">
+                <span class="campo__rotulo">Código da matrícula</span>
+                <input
+                  class="campo__entrada matricula__entrada js-matricula"
+                  type="text"
+                  name="matricula"
+                  maxlength="20"
+                  autocomplete="off"
+                  autocapitalize="characters"
+                  spellcheck="false"
+                  placeholder="Digite sua matrícula"
+                  required
+                />
+                <span class="campo__erro js-erro-matricula" role="alert"></span>
+              </label>
               <button type="submit" class="botao botao--grande">
                 Confirmar meu voto
                 <span class="botao__seta" aria-hidden="true">→</span>
@@ -187,13 +202,11 @@
               <div>
                 <p class="escolha__rotulo">Voto registrado para</p>
                 <p class="escolha__nome js-escolha-nome"></p>
+                <p class="escolha__matricula js-escolha-matricula"></p>
               </div>
             </div>
 
             <p class="obrigado__nota js-contagem" aria-live="polite"></p>
-            <button type="button" class="botao botao--secundario js-novo-voto">
-              Registrar outro voto agora
-            </button>
           </div>
 
           <!-- Votação encerrada -->
@@ -231,6 +244,7 @@
             <img class="confirmacao__imagem js-confirmacao-imagem" src="" alt="" />
             <div>
               <p class="confirmacao__item js-confirmacao-item"></p>
+              <p class="confirmacao__matricula js-confirmacao-matricula"></p>
             </div>
           </div>
           <p class="dialogo__texto">Confira o item escolhido antes de confirmar.</p>

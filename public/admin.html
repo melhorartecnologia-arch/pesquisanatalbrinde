@@ -159,6 +159,14 @@
             </div>
             <div class="filtros">
               <label class="filtros__campo">
+                <span class="sr-only">Buscar matrícula</span>
+                <input
+                  class="campo__entrada campo__entrada--compacta js-busca"
+                  type="search"
+                  placeholder="Buscar matrícula…"
+                />
+              </label>
+              <label class="filtros__campo">
                 <span class="sr-only">Filtrar por item</span>
                 <select class="campo__entrada campo__entrada--compacta js-filtro-item">
                   <option value="">Todos os itens</option>
@@ -172,6 +180,7 @@
               <thead>
                 <tr>
                   <th scope="col">Nº</th>
+                  <th scope="col">Matrícula</th>
                   <th scope="col">Item escolhido</th>
                   <th scope="col">Data/hora</th>
                   <th scope="col"><span class="sr-only">Ações</span></th>
@@ -192,9 +201,9 @@
         <div class="dialogo__corpo">
           <h2 id="titulo-excluir" class="dialogo__titulo">Excluir este voto?</h2>
           <p class="dialogo__texto">
-            O voto nº <strong class="js-excluir-numero"></strong> em
-            <strong class="js-excluir-item"></strong> será removido da apuração. Use para descartar votos
-            registrados por engano.
+            O voto nº <strong class="js-excluir-numero"></strong> (matrícula
+            <strong class="js-excluir-matricula"></strong>) em <strong class="js-excluir-item"></strong> será
+            removido da apuração e essa matrícula poderá votar de novo.
           </p>
         </div>
         <div class="dialogo__acoes">

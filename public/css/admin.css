@@ -479,10 +479,10 @@
 }
 
 .tabela--votos {
-  min-width: 480px;
+  min-width: 560px;
 }
 
-.tabela--votos td:nth-child(3) {
+.tabela--votos td:nth-child(4) {
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
   color: var(--tinta-2);
@@ -566,7 +566,8 @@
   }
 
   .filtros,
-  .filtros__campo {
+  .filtros__campo,
+  .filtros__campo .campo__entrada--compacta {
     width: 100%;
   }
 

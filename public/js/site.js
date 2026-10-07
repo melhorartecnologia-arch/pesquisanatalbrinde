@@ -2,7 +2,7 @@
   'use strict';
 
   // Segundos que a tela de agradecimento fica visível antes de liberar um novo voto
-  const SEGUNDOS_AGRADECIMENTO = 6;
+  const SEGUNDOS_AGRADECIMENTO = 5;
 
   const $ = (seletor, raiz = document) => raiz.querySelector(seletor);
   const $$ = (seletor, raiz = document) => Array.from(raiz.querySelectorAll(seletor));
@@ -16,16 +16,19 @@
     opcoes: $('.js-opcoes'),
     erroItem: $('.js-erro-item'),
     erroGeral: $('.js-erro-geral'),
+    matricula: $('.js-matricula'),
+    erroMatricula: $('.js-erro-matricula'),
     obrigado: $('.js-obrigado'),
     escolha: $('.js-escolha'),
     escolhaImagem: $('.js-escolha-imagem'),
     escolhaNome: $('.js-escolha-nome'),
+    escolhaMatricula: $('.js-escolha-matricula'),
     contagem: $('.js-contagem'),
-    novoVoto: $('.js-novo-voto'),
     encerrado: $('.js-encerrado'),
     dialogo: $('.js-dialogo'),
     confirmacaoImagem: $('.js-confirmacao-imagem'),
     confirmacaoItem: $('.js-confirmacao-item'),
+    confirmacaoMatricula: $('.js-confirmacao-matricula'),
     confirmar: $('.js-confirmar'),
     prazo: $('.js-prazo'),
     modeloOpcao: $('#modelo-opcao'),
@@ -55,6 +58,22 @@
       dados = {};
     }
     return { ok: resposta.ok, status: resposta.status, dados };
+  }
+
+  function lerMatricula() {
+    return el.matricula.value.replace(/\s+/g, '').toUpperCase();
+  }
+
+  function mostrarErroMatricula(mensagem) {
+    el.erroMatricula.textContent = mensagem;
+    el.matricula.setAttribute('aria-invalid', 'true');
+    el.matricula.focus();
+    el.matricula.select();
+  }
+
+  function limparErroMatricula() {
+    el.erroMatricula.textContent = '';
+    el.matricula.removeAttribute('aria-invalid');
   }
 
   function mostrarPainel(qual) {
@@ -131,6 +150,7 @@
   function abrirConfirmacao() {
     const item = itemSelecionado();
     el.confirmacaoItem.textContent = item.nome;
+    el.confirmacaoMatricula.textContent = `Matrícula: ${lerMatricula()}`;
     el.confirmacaoImagem.src = item.imagem;
     el.confirmacaoImagem.alt = item.nome;
 
@@ -166,12 +186,14 @@
     try {
       const resposta = await chamarApi('/api/votos', {
         method: 'POST',
-        body: JSON.stringify({ itemId: estado.selecionado }),
+        body: JSON.stringify({ itemId: estado.selecionado, matricula: lerMatricula() }),
       });
       fecharDialogo();
 
       if (resposta.status === 201) {
-        exibirObrigado(itemSelecionado());
+        exibirObrigado(itemSelecionado(), resposta.dados.voto.matricula);
+      } else if (resposta.dados.campo === 'matricula') {
+        mostrarErroMatricula(resposta.dados.erro);
       } else if (resposta.status === 403) {
         mostrarPainel('encerrado');
       } else {
@@ -187,7 +209,8 @@
 
   // ---------- Agradecimento e volta para um novo voto ----------
 
-  function exibirObrigado(item) {
+  function exibirObrigado(item, matricula) {
+    el.escolhaMatricula.textContent = matricula ? `Matrícula ${matricula}` : '';
     if (item) {
       el.escolhaNome.textContent = item.nome;
       el.escolhaImagem.src = item.imagem;
@@ -206,7 +229,7 @@
     pararContagem();
     let restante = SEGUNDOS_AGRADECIMENTO;
     const atualizar = () => {
-      el.contagem.textContent = `A votação será liberada para o próximo colaborador em ${restante} s…`;
+      el.contagem.textContent = `Próximo voto liberado automaticamente em ${restante} s…`;
     };
     atualizar();
     estado.temporizador = window.setInterval(() => {
@@ -234,6 +257,8 @@
     });
     el.erroItem.textContent = '';
     el.erroGeral.hidden = true;
+    el.matricula.value = '';
+    limparErroMatricula();
     mostrarPainel('formulario');
     el.secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -301,6 +326,11 @@
       if (primeira) primeira.focus({ preventScroll: true });
       return;
     }
+    if (!/^[0-9A-Z.\-/]{1,20}$/.test(lerMatricula())) {
+      mostrarErroMatricula('Digite o código da sua matrícula para votar.');
+      return;
+    }
+    limparErroMatricula();
     abrirConfirmacao();
   });
 
@@ -313,7 +343,9 @@
     if (estado.enviando) evento.preventDefault();
   });
 
-  el.novoVoto.addEventListener('click', prepararNovoVoto);
+  el.matricula.addEventListener('input', () => {
+    if (el.matricula.getAttribute('aria-invalid') === 'true') limparErroMatricula();
+  });
   el.tentarNovamente.addEventListener('click', carregar);
 
   preencherAno();

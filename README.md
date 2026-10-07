@@ -5,8 +5,8 @@ fim de ano, com área administrativa protegida por senha para consolidar o resul
 
 - **100% JavaScript**: Node.js + Express no servidor, HTML/CSS/JS puro no navegador
 - **Banco PostgreSQL** (tabelas criadas automaticamente ao subir o servidor)
-- **Votação livre, estilo totem**: o colaborador escolhe o item e confirma, sem nome nem setor;
-  a tela agradece e volta sozinha para o próximo voto (ideal para um tablet ou computador compartilhado)
+- **Votação estilo totem com matrícula**: o colaborador escolhe o item, digita o código da matrícula
+  e confirma; cada matrícula vota uma única vez e a tela volta sozinha para o próximo voto
 - **Área administrativa** (`/admin`) com senha única, gráfico, totais por dia, lista de votos,
   exclusão de votos duplicados e exportação em CSV (abre direto no Excel)
 
@@ -75,14 +75,18 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ## Como funciona a votação
 
-1. O colaborador toca no item que prefere e em **Confirmar meu voto**.
-2. Uma janela pede a confirmação; ao confirmar, o voto é gravado.
-3. Aparece "Obrigado pelo seu voto!" por 6 segundos e a tela volta sozinha para a escolha,
-   pronta para o próximo colaborador (ou toque em **Registrar outro voto agora**).
+1. O colaborador toca no item que prefere, digita o **código da matrícula** e toca em
+   **Confirmar meu voto**.
+2. Uma janela mostra o item e a matrícula para confirmação; ao confirmar, o voto é gravado.
+3. Aparece "Obrigado pelo seu voto!" por 5 segundos e a tela volta **sozinha** para a escolha,
+   com a matrícula apagada, pronta para o próximo colaborador.
 
-Não há trava por navegador nem identificação: cada confirmação conta um voto. Para descartar um
-voto registrado por engano, use o botão **Excluir** no painel. O tempo da tela de agradecimento
-fica na constante `SEGUNDOS_AGRADECIMENTO`, em `public/js/site.js`.
+Cada matrícula vota **uma única vez**: se a mesma matrícula tentar de novo, a tela avisa
+"A matrícula ... já registrou um voto". A matrícula aceita letras, números, ponto, hífen e barra
+(até 20 caracteres); espaços são ignorados e letras viram maiúsculas.
+
+Para liberar uma matrícula (voto registrado por engano), exclua o voto dela no painel. O tempo da
+tela de agradecimento fica na constante `SEGUNDOS_AGRADECIMENTO`, em `public/js/site.js`.
 
 ## Área administrativa
 
@@ -91,7 +95,7 @@ Em `/admin`, digite a senha definida em `ADMIN_PASSWORD`. O painel mostra:
 - total de votos, item na liderança (ou empate), votos do dia e horário do último voto;
 - gráfico de votos por item com percentual;
 - tabela de votos por dia;
-- lista completa de votos com filtro por item e botão de exclusão;
+- lista completa de votos com matrícula, busca por matrícula, filtro por item e botão de exclusão;
 - exportação **Resumo (CSV)** e **Votos (CSV)**, no padrão do Excel em português (separador `;`).
 
 O painel se atualiza sozinho a cada 30 segundos. Após 10 senhas erradas, o IP fica bloqueado por
@@ -118,18 +122,18 @@ O painel se atualiza sozinho a cada 30 segundos. Após 10 senhas erradas, o IP f
 
 ## API
 
-| Método | Rota                             | Descrição                           |
-| ------ | -------------------------------- | ----------------------------------- |
-| GET    | `/api/itens`                     | Itens ativos e status da votação    |
-| POST   | `/api/votos`                     | Registra o voto `{ itemId }`        |
-| POST   | `/api/admin/login`               | Login `{ senha }`                   |
-| POST   | `/api/admin/logout`              | Encerra a sessão                    |
-| GET    | `/api/admin/resultado`           | Totais, percentuais e votos por dia |
-| GET    | `/api/admin/votos`               | Lista de votos                      |
-| DELETE | `/api/admin/votos/:id`           | Exclui um voto                      |
-| GET    | `/api/admin/exportar/resumo.csv` | Resultado consolidado em CSV        |
-| GET    | `/api/admin/exportar/votos.csv`  | Todos os votos em CSV               |
-| GET    | `/api/saude`                     | Verificação de saúde (app + banco)  |
+| Método | Rota                             | Descrição                               |
+| ------ | -------------------------------- | --------------------------------------- |
+| GET    | `/api/itens`                     | Itens ativos e status da votação        |
+| POST   | `/api/votos`                     | Registra o voto `{ itemId, matricula }` |
+| POST   | `/api/admin/login`               | Login `{ senha }`                       |
+| POST   | `/api/admin/logout`              | Encerra a sessão                        |
+| GET    | `/api/admin/resultado`           | Totais, percentuais e votos por dia     |
+| GET    | `/api/admin/votos`               | Lista de votos                          |
+| DELETE | `/api/admin/votos/:id`           | Exclui um voto                          |
+| GET    | `/api/admin/exportar/resumo.csv` | Resultado consolidado em CSV            |
+| GET    | `/api/admin/exportar/votos.csv`  | Todos os votos em CSV                   |
+| GET    | `/api/saude`                     | Verificação de saúde (app + banco)      |
 
 ## Publicação
 

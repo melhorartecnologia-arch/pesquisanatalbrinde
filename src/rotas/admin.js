@@ -132,7 +132,7 @@ async function buscarResultado() {
 
 async function buscarVotos() {
   const { rows } = await pool.query(
-    `SELECT v.id, v.criado_em AS "criadoEm",
+    `SELECT v.id, v.matricula, v.criado_em AS "criadoEm",
             i.id AS "itemId", i.nome AS "itemNome",
             to_char(v.criado_em AT TIME ZONE $1, 'DD/MM/YYYY HH24:MI:SS') AS "dataFormatada"
        FROM votos v
@@ -221,9 +221,9 @@ router.get('/exportar/resumo.csv', async (req, res, next) => {
 router.get('/exportar/votos.csv', async (req, res, next) => {
   try {
     const votos = await buscarVotos();
-    const linhas = [['ID', 'Item escolhido', 'Data/hora']];
+    const linhas = [['ID', 'Matrícula', 'Item escolhido', 'Data/hora']];
     for (const voto of votos) {
-      linhas.push([voto.id, voto.itemNome, voto.dataFormatada]);
+      linhas.push([voto.id, voto.matricula || '', voto.itemNome, voto.dataFormatada]);
     }
     enviarCsv(res, `votos-cesta-natal-${carimboArquivo()}.csv`, linhas);
   } catch (erro) {

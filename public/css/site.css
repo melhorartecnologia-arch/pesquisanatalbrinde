@@ -614,7 +614,40 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  margin-top: clamp(28px, 4vw, 40px);
+  max-width: 420px;
+  margin: clamp(28px, 4vw, 40px) auto 0;
+}
+
+.matricula {
+  width: 100%;
+  text-align: center;
+}
+
+.matricula__entrada {
+  min-height: 60px;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.matricula__entrada::placeholder {
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.enviar .botao--grande {
+  width: 100%;
+}
+
+.confirmacao__matricula,
+.escolha__matricula {
+  margin-top: 4px;
+  font-size: 14.5px;
+  color: var(--tinta-2);
 }
 
 .botao--grande {
@@ -740,7 +773,7 @@ body {
 }
 
 .obrigado__nota {
-  margin: 28px 0 16px;
+  margin-top: 28px;
   font-size: 14.5px;
   color: var(--tinta-3);
 }
@@ -830,10 +863,6 @@ body {
 }
 
 @media (max-width: 480px) {
-  .enviar .botao--grande {
-    width: 100%;
-  }
-
   .topo__acao {
     padding: 8px 14px;
   }

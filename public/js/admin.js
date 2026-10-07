@@ -35,10 +35,12 @@
     votosCorpo: $('.js-votos-corpo'),
     votosVazio: $('.js-votos-vazio'),
     votosContagem: $('.js-votos-contagem'),
+    busca: $('.js-busca'),
     filtroItem: $('.js-filtro-item'),
     dica: $('.js-dica'),
     dialogoExcluir: $('.js-dialogo-excluir'),
     excluirNumero: $('.js-excluir-numero'),
+    excluirMatricula: $('.js-excluir-matricula'),
     excluirItem: $('.js-excluir-item'),
     confirmarExclusao: $('.js-confirmar-exclusao'),
   };
@@ -418,7 +420,12 @@
 
   function renderizarVotos() {
     const itemFiltro = el.filtroItem.value;
-    const filtrados = estado.votos.filter((voto) => !itemFiltro || String(voto.itemId) === itemFiltro);
+    const termo = el.busca.value.replace(/\s+/g, '').toUpperCase();
+    const filtrados = estado.votos.filter(
+      (voto) =>
+        (!itemFiltro || String(voto.itemId) === itemFiltro) &&
+        (!termo || (voto.matricula || '').includes(termo)),
+    );
 
     el.votosContagem.textContent = `${formatoNumero.format(filtrados.length)} de ${plural(
       estado.votos.length,
@@ -438,7 +445,8 @@
         botaoExcluir.addEventListener('click', () => pedirExclusao(voto));
 
         return criar('tr', {}, [
-          criar('td', { classe: 'tabela__nome', texto: String(voto.id) }),
+          criar('td', { texto: String(voto.id) }),
+          criar('td', { classe: 'tabela__nome', texto: voto.matricula || '—' }),
           criar('td', { texto: voto.itemNome }),
           criar('td', { texto: voto.dataFormatada }),
           criar('td', {}, [botaoExcluir]),
@@ -448,12 +456,14 @@
   }
 
   el.filtroItem.addEventListener('change', renderizarVotos);
+  el.busca.addEventListener('input', renderizarVotos);
 
   // ---------- Exclusão ----------
 
   function pedirExclusao(voto) {
     estado.votoParaExcluir = voto;
     el.excluirNumero.textContent = String(voto.id);
+    el.excluirMatricula.textContent = voto.matricula || 'não informada';
     el.excluirItem.textContent = voto.itemNome;
     el.dialogoExcluir.showModal();
   }

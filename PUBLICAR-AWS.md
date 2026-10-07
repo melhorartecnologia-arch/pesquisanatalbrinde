@@ -192,7 +192,8 @@ automaticamente para `https://`. A renovação do certificado é automática.
 
 ## 10. Conferir
 
-1. Abra o site e vote: deve aparecer **"Obrigado pelo seu voto!"** e, após alguns segundos, a tela volta para a escolha.
+1. Abra o site, escolha um item, digite uma matrícula de teste e vote: deve aparecer **"Obrigado pelo
+   seu voto!"** e, após 5 segundos, a tela volta sozinha para a escolha.
 2. Abra `/admin`, entre com a `ADMIN_PASSWORD` e confira o voto.
 3. **Exclua os votos de teste** no painel antes de divulgar o link para os colaboradores.
 
