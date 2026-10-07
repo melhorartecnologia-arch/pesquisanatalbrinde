@@ -828,17 +828,16 @@ body {
 .rodape__conteudo {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
   gap: 8px 24px;
   padding-top: 28px;
   padding-bottom: 28px;
 }
 
-.rodape__marca {
-  font-family: var(--fonte-marca);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--tinta-2);
+.rodape__logo {
+  width: auto;
+  height: 40px;
 }
 
 /* ---------- Responsivo ---------- */
@@ -903,8 +902,8 @@ body {
     padding: 8px 14px;
   }
 
-  .marca__nome {
-    font-size: 15px;
+  .marca__logo {
+    height: 44px;
   }
 
   .vitrine__etiqueta {

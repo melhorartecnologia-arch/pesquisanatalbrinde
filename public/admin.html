@@ -21,15 +21,13 @@
     <!-- ================= Login ================= -->
     <main class="login js-tela-login" hidden>
       <form class="login__cartao js-form-login" novalidate>
-        <span class="marca__coroa login__coroa" aria-hidden="true">
-          <svg viewBox="0 0 64 44" fill="currentColor">
-            <path d="M6 15l11.5 11.5L32 6l14.5 20.5L58 15l-4 22H10z" />
-            <rect x="10" y="39" width="44" height="5" rx="1.5" />
-            <circle cx="6" cy="12.5" r="3.6" />
-            <circle cx="32" cy="4" r="3.6" />
-            <circle cx="58" cy="12.5" r="3.6" />
-          </svg>
-        </span>
+        <img
+          class="login__logo"
+          src="/img/logo-cidade-imperial.png"
+          alt="Cervejaria Cidade Imperial"
+          width="318"
+          height="128"
+        />
         <p class="sobretitulo">Área administrativa</p>
         <h1 class="login__titulo">Pesquisa da Cesta de Natal</h1>
         <p class="login__texto">Digite a senha de acesso para ver o resultado consolidado.</p>
@@ -61,20 +59,15 @@
     <div class="painel js-tela-painel" hidden>
       <header class="painel__topo">
         <div class="container painel__topo-conteudo">
-          <a class="marca" href="/admin" aria-label="Painel da pesquisa">
-            <span class="marca__coroa" aria-hidden="true">
-              <svg viewBox="0 0 64 44" fill="currentColor">
-                <path d="M6 15l11.5 11.5L32 6l14.5 20.5L58 15l-4 22H10z" />
-                <rect x="10" y="39" width="44" height="5" rx="1.5" />
-                <circle cx="6" cy="12.5" r="3.6" />
-                <circle cx="32" cy="4" r="3.6" />
-                <circle cx="58" cy="12.5" r="3.6" />
-              </svg>
-            </span>
-            <span class="marca__texto">
-              <span class="marca__nome">Cidade Imperial</span>
-              <span class="marca__sub">Painel da pesquisa</span>
-            </span>
+          <a class="marca" href="/admin">
+            <img
+              class="marca__logo"
+              src="/img/logo-cidade-imperial.png"
+              alt="Cervejaria Cidade Imperial"
+              width="318"
+              height="128"
+            />
+            <span class="marca__rotulo">Painel da pesquisa</span>
           </a>
           <div class="painel__acoes">
             <button type="button" class="botao botao--secundario botao--pequeno js-atualizar">

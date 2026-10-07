@@ -130,45 +130,25 @@ select {
 .marca {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+  border-radius: 8px;
   color: var(--tinta);
   text-decoration: none;
 }
 
-.marca__coroa {
-  width: 40px;
-  height: 40px;
-  flex: none;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  background: var(--azul);
-  color: var(--dourado-vivo);
+.marca__logo {
+  width: auto;
+  height: 54px;
 }
 
-.marca__coroa svg {
-  width: 26px;
-  height: auto;
-}
-
-.marca__texto {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.05;
-}
-
-.marca__nome {
+.marca__rotulo {
+  padding-left: 14px;
+  border-left: 1px solid var(--linha-forte);
   font-family: var(--fonte-marca);
+  font-size: 12px;
   font-weight: 700;
-  font-size: 17px;
-  letter-spacing: 0.06em;
-}
-
-.marca__sub {
-  font-family: var(--fonte-marca);
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.2em;
+  line-height: 1.3;
   text-transform: uppercase;
   color: var(--dourado);
 }

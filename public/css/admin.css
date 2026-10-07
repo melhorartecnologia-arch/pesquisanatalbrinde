@@ -31,15 +31,10 @@
   text-align: center;
 }
 
-.login__coroa {
-  width: 56px;
-  height: 56px;
-  margin: 0 auto 18px;
-  border-radius: 16px;
-}
-
-.login__coroa svg {
-  width: 34px;
+.login__logo {
+  width: auto;
+  height: 72px;
+  margin: 0 auto 22px;
 }
 
 .login__titulo {
@@ -597,8 +592,12 @@
     padding: 8px 12px;
   }
 
-  .marca__sub {
+  .marca__rotulo {
     display: none;
+  }
+
+  .marca__logo {
+    height: 40px;
   }
 
   .filtros,
