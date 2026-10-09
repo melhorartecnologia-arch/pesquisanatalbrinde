@@ -12,14 +12,14 @@ Hotsite interno para os colaboradores votarem nos produtos dos aniversariantes d
 
 ## Produtos em votação
 
-| Categoria  | Produto               | Detalhe                     | Imagem                                       |
-| ---------- | --------------------- | --------------------------- | -------------------------------------------- |
-| Cerveja    | Império Gold          | Long neck · 330 ml          | `public/img/cerveja-gold.webp` (provisória)  |
-| Cerveja    | Império Lager         | Long neck · 330 ml          | `public/img/cerveja-lager.webp` (provisória) |
-| Cerveja    | Império Helles        | Long neck · 330 ml          | `public/img/cerveja-helles.webp`             |
-| Energético | Dopamina Extreme      | Lata 269 ml · tutti-frutti  | `public/img/energetico-extreme.webp`         |
-| Energético | Dopamina Black        | Lata 473 ml · mix de frutas | `public/img/energetico-black.webp`           |
-| Energético | Dopamina Manga Summer | Tradicional · lata 473 ml   | `public/img/energetico-manga-summer.webp`    |
+| Categoria  | Produto               | Detalhe                     | Imagem                                    |
+| ---------- | --------------------- | --------------------------- | ----------------------------------------- |
+| Cerveja    | Império Gold          | Long neck · 330 ml          | `public/img/cerveja-gold.webp`            |
+| Cerveja    | Império Lager         | Long neck · 330 ml          | `public/img/cerveja-lager.webp`           |
+| Cerveja    | Império Helles        | Long neck · 330 ml          | `public/img/cerveja-helles.webp`          |
+| Energético | Dopamina Extreme      | Lata 269 ml · tutti-frutti  | `public/img/energetico-extreme.webp`      |
+| Energético | Dopamina Black        | Lata 473 ml · mix de frutas | `public/img/energetico-black.webp`        |
+| Energético | Dopamina Manga Summer | Tradicional · lata 473 ml   | `public/img/energetico-manga-summer.webp` |
 
 Para trocar uma foto, substitua o arquivo em `public/img/` mantendo o mesmo nome (de preferência
 `.webp` com fundo transparente, cerca de 900 px de altura). Para alterar nomes ou incluir um produto,
