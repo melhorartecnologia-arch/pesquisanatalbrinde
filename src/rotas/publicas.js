@@ -6,19 +6,7 @@ const { estadoVotacao } = require('../votacao');
 
 const router = express.Router();
 
-router.get('/itens', async (req, res, next) => {
-  try {
-    const { rows } = await pool.query(
-      `SELECT id, nome, descricao, imagem
-         FROM itens
-        WHERE ativo
-        ORDER BY ordem, id`,
-    );
-    res.json({ itens: rows, votacao: estadoVotacao() });
-  } catch (erro) {
-    next(erro);
-  }
-});
+const REGEX_MATRICULA = /^[0-9A-Z./-]{1,20}$/;
 
 // Matrícula: letras e números, sem espaços, em maiúsculas (ex.: " 00123 " → "00123")
 function normalizarMatricula(valor) {
@@ -27,7 +15,33 @@ function normalizarMatricula(valor) {
     .toUpperCase();
 }
 
-// Totem/tablet compartilhado: cada matrícula registra um único voto
+// Aceita ausência de escolha (null/vazio); qualquer outro valor precisa ser um id inteiro positivo
+function lerIdOpcional(valor) {
+  if (valor === null || valor === undefined || valor === '') return null;
+  const id = Number(valor);
+  return Number.isInteger(id) && id > 0 ? id : NaN;
+}
+
+router.get('/produtos', async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT id, categoria, nome, detalhe, imagem
+         FROM produtos
+        WHERE ativo
+        ORDER BY categoria, ordem, id`,
+    );
+    res.json({
+      cervejas: rows.filter((produto) => produto.categoria === 'cerveja'),
+      energeticos: rows.filter((produto) => produto.categoria === 'energetico'),
+      votacao: estadoVotacao(),
+    });
+  } catch (erro) {
+    next(erro);
+  }
+});
+
+// Totem/tablet compartilhado: cada matrícula participa uma única vez,
+// escolhendo uma cerveja, um energético ou os dois
 router.post('/votos', async (req, res, next) => {
   try {
     if (!estadoVotacao().aberta) {
@@ -35,30 +49,39 @@ router.post('/votos', async (req, res, next) => {
     }
 
     const corpo = req.body || {};
-    const itemId = Number(corpo.itemId);
+    const cervejaId = lerIdOpcional(corpo.cervejaId);
+    const energeticoId = lerIdOpcional(corpo.energeticoId);
     const matricula = normalizarMatricula(corpo.matricula);
-    if (!Number.isInteger(itemId) || itemId <= 0) {
-      return res.status(400).json({ erro: 'Escolha um dos itens da cesta.' });
+
+    if (Number.isNaN(cervejaId) || Number.isNaN(energeticoId)) {
+      return res.status(400).json({ erro: 'Opção de voto inválida.' });
     }
-    if (!/^[0-9A-Z.\-/]{1,20}$/.test(matricula)) {
+    if (cervejaId === null && energeticoId === null) {
+      return res.status(400).json({ erro: 'Escolha pelo menos uma cerveja ou um energético.' });
+    }
+    if (!REGEX_MATRICULA.test(matricula)) {
       return res.status(400).json({ erro: 'Digite um código de matrícula válido.', campo: 'matricula' });
     }
 
-    const resultadoItem = await pool.query('SELECT id, nome, imagem FROM itens WHERE id = $1 AND ativo', [
-      itemId,
-    ]);
-    const item = resultadoItem.rows[0];
-    if (!item) {
-      return res.status(400).json({ erro: 'O item escolhido não está disponível.' });
+    // Confere se cada escolha existe, está ativa e pertence à categoria certa
+    const ids = [cervejaId, energeticoId].filter((id) => id !== null);
+    const { rows: produtos } = await pool.query(
+      'SELECT id, categoria, nome, detalhe, imagem FROM produtos WHERE ativo AND id = ANY($1::int[])',
+      [ids],
+    );
+    const cerveja = produtos.find((p) => p.id === cervejaId && p.categoria === 'cerveja') || null;
+    const energetico = produtos.find((p) => p.id === energeticoId && p.categoria === 'energetico') || null;
+    if ((cervejaId !== null && !cerveja) || (energeticoId !== null && !energetico)) {
+      return res.status(400).json({ erro: 'A opção escolhida não está disponível.' });
     }
 
     const userAgent = String(req.get('user-agent') || '').slice(0, 300);
     const { rows } = await pool.query(
-      `INSERT INTO votos (item_id, matricula, ip, user_agent)
-       VALUES ($1, $2, $3, $4)
-       ON CONFLICT (matricula) WHERE matricula IS NOT NULL DO NOTHING
+      `INSERT INTO participacoes (matricula, cerveja_id, energetico_id, ip, user_agent)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (matricula) DO NOTHING
        RETURNING criado_em`,
-      [item.id, matricula, req.ip, userAgent],
+      [matricula, cervejaId, energeticoId, req.ip, userAgent],
     );
 
     if (rows.length === 0) {
@@ -67,7 +90,7 @@ router.post('/votos', async (req, res, next) => {
         .json({ erro: `A matrícula ${matricula} já registrou um voto.`, campo: 'matricula' });
     }
 
-    res.status(201).json({ voto: { criadoEm: rows[0].criado_em, matricula, item } });
+    res.status(201).json({ voto: { criadoEm: rows[0].criado_em, matricula, cerveja, energetico } });
   } catch (erro) {
     next(erro);
   }

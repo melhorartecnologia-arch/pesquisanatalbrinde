@@ -3,6 +3,8 @@
 
   // Segundos que a tela de agradecimento fica visível antes de liberar um novo voto
   const SEGUNDOS_AGRADECIMENTO = 5;
+  const REGEX_MATRICULA = /^[0-9A-Z./-]{1,20}$/;
+  const ROTULOS = { cerveja: 'Cerveja', energetico: 'Energético' };
 
   const $ = (seletor, raiz = document) => raiz.querySelector(seletor);
   const $$ = (seletor, raiz = document) => Array.from(raiz.querySelectorAll(seletor));
@@ -13,30 +15,32 @@
     falha: $('.js-falha'),
     tentarNovamente: $('.js-tentar-novamente'),
     formulario: $('.js-formulario'),
-    opcoes: $('.js-opcoes'),
+    grades: {
+      cerveja: $('.js-opcoes[data-categoria="cerveja"]'),
+      energetico: $('.js-opcoes[data-categoria="energetico"]'),
+    },
     erroItem: $('.js-erro-item'),
-    erroGeral: $('.js-erro-geral'),
+    resumo: $('.js-resumo'),
     matricula: $('.js-matricula'),
     erroMatricula: $('.js-erro-matricula'),
+    erroGeral: $('.js-erro-geral'),
     obrigado: $('.js-obrigado'),
-    escolha: $('.js-escolha'),
-    escolhaImagem: $('.js-escolha-imagem'),
-    escolhaNome: $('.js-escolha-nome'),
-    escolhaMatricula: $('.js-escolha-matricula'),
+    obrigadoMatricula: $('.js-obrigado-matricula'),
+    escolhas: $('.js-escolhas'),
     contagem: $('.js-contagem'),
     encerrado: $('.js-encerrado'),
     dialogo: $('.js-dialogo'),
-    confirmacaoImagem: $('.js-confirmacao-imagem'),
-    confirmacaoItem: $('.js-confirmacao-item'),
+    confirmacaoEscolhas: $('.js-confirmacao-escolhas'),
     confirmacaoMatricula: $('.js-confirmacao-matricula'),
     confirmar: $('.js-confirmar'),
     prazo: $('.js-prazo'),
     modeloOpcao: $('#modelo-opcao'),
+    modeloEscolha: $('#modelo-escolha'),
   };
 
   const estado = {
-    itens: [],
-    selecionado: null,
+    produtos: { cerveja: [], energetico: [] },
+    selecao: { cerveja: null, energetico: null },
     enviando: false,
     temporizador: null,
   };
@@ -46,11 +50,7 @@
   async function chamarApi(caminho, opcoes = {}) {
     const cabecalhos = { Accept: 'application/json' };
     if (opcoes.body) cabecalhos['Content-Type'] = 'application/json';
-    const resposta = await fetch(caminho, {
-      credentials: 'same-origin',
-      ...opcoes,
-      headers: cabecalhos,
-    });
+    const resposta = await fetch(caminho, { credentials: 'same-origin', ...opcoes, headers: cabecalhos });
     let dados = {};
     try {
       dados = await resposta.json();
@@ -102,62 +102,95 @@
     el.prazo.hidden = false;
   }
 
+  function produtoSelecionado(categoria) {
+    return estado.produtos[categoria].find((produto) => produto.id === estado.selecao[categoria]) || null;
+  }
+
   // ---------- Opções de voto ----------
 
-  function renderizarItens(itens) {
-    el.opcoes.replaceChildren();
-    itens.forEach((item, indice) => {
+  function renderizarCategoria(categoria) {
+    const grade = el.grades[categoria];
+    grade.replaceChildren();
+    estado.produtos[categoria].forEach((produto) => {
       const fragmento = el.modeloOpcao.content.cloneNode(true);
       const cartao = $('.opcao', fragmento);
       const entrada = $('.opcao__entrada', fragmento);
-      const idNome = `opcao-nome-${item.id}`;
-      const idDescricao = `opcao-descricao-${item.id}`;
+      const idNome = `opcao-nome-${produto.id}`;
 
-      cartao.dataset.itemId = String(item.id);
-      entrada.value = String(item.id);
+      cartao.dataset.produtoId = String(produto.id);
+      cartao.classList.add(`opcao--${categoria}`);
+      entrada.name = categoria;
+      entrada.value = String(produto.id);
       entrada.setAttribute('aria-labelledby', idNome);
-      entrada.setAttribute('aria-describedby', idDescricao);
 
-      $('.opcao__numero', fragmento).textContent = `Opção ${indice + 1}`;
-      $('img', fragmento).src = item.imagem;
-      $('.opcao__nome', fragmento).textContent = item.nome;
+      const imagem = $('img', fragmento);
+      imagem.src = produto.imagem;
+      $('.opcao__nome', fragmento).textContent = produto.nome;
       $('.opcao__nome', fragmento).id = idNome;
-      $('.opcao__descricao', fragmento).textContent = item.descricao || '';
-      $('.opcao__descricao', fragmento).id = idDescricao;
+      $('.opcao__detalhe', fragmento).textContent = produto.detalhe || '';
 
-      entrada.addEventListener('change', () => selecionarItem(item.id));
-      el.opcoes.appendChild(fragmento);
+      // Tocar no item já escolhido desmarca (as duas categorias são opcionais)
+      entrada.addEventListener('click', () => {
+        alternarSelecao(categoria, estado.selecao[categoria] === produto.id ? null : produto.id);
+      });
+      grade.appendChild(fragmento);
     });
   }
 
-  function selecionarItem(id) {
-    estado.selecionado = id;
-    $$('.opcao', el.opcoes).forEach((cartao) => {
-      const ativo = cartao.dataset.itemId === String(id);
+  function alternarSelecao(categoria, id) {
+    estado.selecao[categoria] = id;
+    $$('.opcao', el.grades[categoria]).forEach((cartao) => {
+      const ativo = cartao.dataset.produtoId === String(id);
       cartao.classList.toggle('is-selecionada', ativo);
       $('.opcao__entrada', cartao).checked = ativo;
-      $('.opcao__acao', cartao).textContent = ativo ? 'Item escolhido' : 'Escolher este item';
+      $('.opcao__acao', cartao).textContent = ativo ? 'Escolhido · toque para desmarcar' : 'Escolher';
     });
     el.erroItem.textContent = '';
+    atualizarResumo();
   }
 
-  function itemSelecionado() {
-    return estado.itens.find((item) => item.id === estado.selecionado);
+  function atualizarResumo() {
+    const partes = ['cerveja', 'energetico']
+      .map((categoria) => produtoSelecionado(categoria))
+      .filter(Boolean)
+      .map((produto) => produto.nome);
+    el.resumo.textContent = partes.length ? `Sua escolha: ${partes.join(' + ')}` : '';
+  }
+
+  // Cartão com a escolha de uma categoria (usado na confirmação e no agradecimento)
+  function cartaoEscolha(categoria, produto) {
+    const fragmento = el.modeloEscolha.content.cloneNode(true);
+    const cartao = $('.escolha', fragmento);
+    $('.escolha__rotulo', fragmento).textContent = ROTULOS[categoria];
+    if (produto) {
+      $('.escolha__imagem', fragmento).src = produto.imagem;
+      $('.escolha__nome', fragmento).textContent = produto.nome;
+      $('.escolha__detalhe', fragmento).textContent = produto.detalhe || '';
+    } else {
+      cartao.classList.add('escolha--vazia');
+      $('.escolha__imagem', fragmento).remove();
+      $('.escolha__nome', fragmento).textContent = 'Sem voto nesta categoria';
+      $('.escolha__detalhe', fragmento).remove();
+    }
+    return fragmento;
+  }
+
+  function preencherEscolhas(alvo, cerveja, energetico) {
+    alvo.replaceChildren(cartaoEscolha('cerveja', cerveja), cartaoEscolha('energetico', energetico));
   }
 
   // ---------- Confirmação e envio ----------
 
   function abrirConfirmacao() {
-    const item = itemSelecionado();
-    el.confirmacaoItem.textContent = item.nome;
+    const cerveja = produtoSelecionado('cerveja');
+    const energetico = produtoSelecionado('energetico');
+    preencherEscolhas(el.confirmacaoEscolhas, cerveja, energetico);
     el.confirmacaoMatricula.textContent = `Matrícula: ${lerMatricula()}`;
-    el.confirmacaoImagem.src = item.imagem;
-    el.confirmacaoImagem.alt = item.nome;
 
     if (typeof el.dialogo.showModal === 'function') {
       el.dialogo.showModal();
       el.confirmar.focus();
-    } else if (window.confirm(`Confirmar seu voto em "${item.nome}"?`)) {
+    } else if (window.confirm('Confirmar seu voto?')) {
       enviarVoto();
     }
   }
@@ -186,12 +219,16 @@
     try {
       const resposta = await chamarApi('/api/votos', {
         method: 'POST',
-        body: JSON.stringify({ itemId: estado.selecionado, matricula: lerMatricula() }),
+        body: JSON.stringify({
+          cervejaId: estado.selecao.cerveja,
+          energeticoId: estado.selecao.energetico,
+          matricula: lerMatricula(),
+        }),
       });
       fecharDialogo();
 
       if (resposta.status === 201) {
-        exibirObrigado(itemSelecionado(), resposta.dados.voto.matricula);
+        exibirObrigado(resposta.dados.voto);
       } else if (resposta.dados.campo === 'matricula') {
         mostrarErroMatricula(resposta.dados.erro);
       } else if (resposta.status === 403) {
@@ -207,18 +244,11 @@
     }
   }
 
-  // ---------- Agradecimento e volta para um novo voto ----------
+  // ---------- Agradecimento e volta automática para um novo voto ----------
 
-  function exibirObrigado(item, matricula) {
-    el.escolhaMatricula.textContent = matricula ? `Matrícula ${matricula}` : '';
-    if (item) {
-      el.escolhaNome.textContent = item.nome;
-      el.escolhaImagem.src = item.imagem;
-      el.escolhaImagem.alt = item.nome;
-      el.escolha.hidden = false;
-    } else {
-      el.escolha.hidden = true;
-    }
+  function exibirObrigado(voto) {
+    el.obrigadoMatricula.textContent = `Matrícula ${voto.matricula}. Seu voto já foi computado.`;
+    preencherEscolhas(el.escolhas, voto.cerveja, voto.energetico);
     mostrarPainel('obrigado');
     el.secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
     el.obrigado.focus({ preventScroll: true });
@@ -234,11 +264,8 @@
     atualizar();
     estado.temporizador = window.setInterval(() => {
       restante -= 1;
-      if (restante <= 0) {
-        prepararNovoVoto();
-      } else {
-        atualizar();
-      }
+      if (restante <= 0) prepararNovoVoto();
+      else atualizar();
     }, 1000);
   }
 
@@ -249,16 +276,11 @@
 
   function prepararNovoVoto() {
     pararContagem();
-    estado.selecionado = null;
-    $$('.opcao', el.opcoes).forEach((cartao) => {
-      cartao.classList.remove('is-selecionada');
-      $('.opcao__entrada', cartao).checked = false;
-      $('.opcao__acao', cartao).textContent = 'Escolher este item';
-    });
-    el.erroItem.textContent = '';
-    el.erroGeral.hidden = true;
+    alternarSelecao('cerveja', null);
+    alternarSelecao('energetico', null);
     el.matricula.value = '';
     limparErroMatricula();
+    el.erroGeral.hidden = true;
     mostrarPainel('formulario');
     el.secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -268,17 +290,18 @@
   async function carregar() {
     mostrarPainel('carregando');
     try {
-      const resposta = await chamarApi('/api/itens');
+      const resposta = await chamarApi('/api/produtos');
       if (!resposta.ok) throw new Error('Falha na API');
 
-      const { itens, votacao } = resposta.dados;
+      const { cervejas, energeticos, votacao } = resposta.dados;
       if (votacao && !votacao.aberta) {
         mostrarPainel('encerrado');
         return;
       }
 
-      estado.itens = itens || [];
-      renderizarItens(estado.itens);
+      estado.produtos = { cerveja: cervejas || [], energetico: energeticos || [] };
+      renderizarCategoria('cerveja');
+      renderizarCategoria('energetico');
       exibirPrazo(votacao);
       mostrarPainel('formulario');
     } catch (erro) {
@@ -286,32 +309,28 @@
     }
   }
 
-  // ---------- Decoração ----------
+  // ---------- Decoração: confete leve no destaque ----------
 
-  function criarNeve() {
-    const alvo = $('.hero__neve');
+  function criarConfete() {
+    const alvo = $('.hero__confete');
     if (!alvo || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const quantidade = window.innerWidth < 640 ? 16 : 28;
+    const cores = ['#e2b24f', '#1d4ea6', '#e8378f', '#f28a1c', '#3aa05a'];
+    const quantidade = window.innerWidth < 640 ? 18 : 32;
     for (let i = 0; i < quantidade; i += 1) {
-      const floco = document.createElement('span');
-      const tamanho = 4 + Math.random() * 6;
-      floco.className = 'floco';
-      floco.style.left = `${Math.random() * 100}%`;
-      floco.style.width = `${tamanho}px`;
-      floco.style.height = `${tamanho}px`;
-      floco.style.opacity = String(0.35 + Math.random() * 0.5);
-      floco.style.animationDuration = `${10 + Math.random() * 12}s`;
-      floco.style.animationDelay = `${-Math.random() * 20}s`;
-      floco.style.setProperty('--deriva', `${Math.round(Math.random() * 80 - 40)}px`);
-      alvo.appendChild(floco);
+      const peca = document.createElement('span');
+      const largura = 5 + Math.random() * 6;
+      peca.className = 'confete';
+      peca.style.left = `${Math.random() * 100}%`;
+      peca.style.width = `${largura}px`;
+      peca.style.height = `${largura * (1.6 + Math.random())}px`;
+      peca.style.background = cores[i % cores.length];
+      peca.style.opacity = String(0.45 + Math.random() * 0.4);
+      peca.style.animationDuration = `${9 + Math.random() * 10}s`;
+      peca.style.animationDelay = `${-Math.random() * 18}s`;
+      peca.style.setProperty('--deriva', `${Math.round(Math.random() * 120 - 60)}px`);
+      peca.style.setProperty('--giro', `${Math.round(360 + Math.random() * 540)}deg`);
+      alvo.appendChild(peca);
     }
-  }
-
-  function preencherAno() {
-    const ano = String(new Date().getFullYear());
-    $$('.js-ano').forEach((alvo) => {
-      alvo.textContent = ano;
-    });
   }
 
   // ---------- Eventos ----------
@@ -319,14 +338,12 @@
   el.formulario.addEventListener('submit', (evento) => {
     evento.preventDefault();
     el.erroGeral.hidden = true;
-    if (!estado.selecionado) {
-      el.erroItem.textContent = 'Escolha um dos itens acima para votar.';
-      el.opcoes.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      const primeira = $('.opcao__entrada', el.opcoes);
-      if (primeira) primeira.focus({ preventScroll: true });
+    if (!estado.selecao.cerveja && !estado.selecao.energetico) {
+      el.erroItem.textContent = 'Escolha pelo menos uma cerveja ou um energético para votar.';
+      el.grades.cerveja.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
-    if (!/^[0-9A-Z.\-/]{1,20}$/.test(lerMatricula())) {
+    if (!REGEX_MATRICULA.test(lerMatricula())) {
       mostrarErroMatricula('Digite o código da sua matrícula para votar.');
       return;
     }
@@ -346,9 +363,9 @@
   el.matricula.addEventListener('input', () => {
     if (el.matricula.getAttribute('aria-invalid') === 'true') limparErroMatricula();
   });
+
   el.tentarNovamente.addEventListener('click', carregar);
 
-  preencherAno();
-  criarNeve();
+  criarConfete();
   carregar();
 })();

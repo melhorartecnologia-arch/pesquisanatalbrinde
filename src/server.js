@@ -81,7 +81,7 @@ async function iniciar() {
   }
 
   const servidor = app.listen(config.porta, () => {
-    console.log(`Pesquisa da Cesta de Natal no ar: http://localhost:${config.porta}`);
+    console.log(`Votação dos aniversariantes do mês no ar: http://localhost:${config.porta}`);
     console.log(`Área administrativa: http://localhost:${config.porta}/admin`);
   });
 

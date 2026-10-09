@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Painel da Pesquisa · Cidade Imperial</title>
+    <title>Painel · Aniversariantes do Mês</title>
     <meta name="robots" content="noindex, nofollow" />
     <meta name="theme-color" content="#fbfaf6" />
     <link rel="icon" href="/img/favicon.svg" type="image/svg+xml" />
@@ -29,7 +29,7 @@
           height="128"
         />
         <p class="sobretitulo">Área administrativa</p>
-        <h1 class="login__titulo">Pesquisa da Cesta de Natal</h1>
+        <h1 class="login__titulo">Aniversariantes do Mês</h1>
         <p class="login__texto">Digite a senha de acesso para ver o resultado consolidado.</p>
 
         <label class="campo login__campo">
@@ -81,7 +81,7 @@
       <main class="container painel__conteudo js-conteudo">
         <div class="painel__cabecalho">
           <div>
-            <h1 class="painel__titulo">Resultado da cesta de Natal</h1>
+            <h1 class="painel__titulo">Produtos dos aniversariantes do mês</h1>
             <p class="painel__status">
               <span class="etiqueta js-etiqueta-votacao"></span>
               <span class="js-atualizado-em"></span>
@@ -102,19 +102,19 @@
         <!-- Indicadores -->
         <section class="indicadores" aria-label="Indicadores">
           <article class="indicador indicador--destaque">
-            <p class="indicador__rotulo">Total de votos</p>
+            <p class="indicador__rotulo">Participações</p>
             <p class="indicador__valor indicador__valor--heroi js-total">–</p>
             <p class="indicador__detalhe js-total-detalhe"></p>
           </article>
           <article class="indicador">
-            <p class="indicador__rotulo">Na liderança</p>
-            <p class="indicador__valor indicador__valor--texto js-lider">–</p>
-            <p class="indicador__detalhe js-lider-detalhe"></p>
+            <p class="indicador__rotulo">Cerveja na liderança</p>
+            <p class="indicador__valor indicador__valor--texto js-lider-cerveja">–</p>
+            <p class="indicador__detalhe js-lider-cerveja-detalhe"></p>
           </article>
           <article class="indicador">
-            <p class="indicador__rotulo">Votos hoje</p>
-            <p class="indicador__valor js-hoje">–</p>
-            <p class="indicador__detalhe">desde 00h00</p>
+            <p class="indicador__rotulo">Energético na liderança</p>
+            <p class="indicador__valor indicador__valor--texto js-lider-energetico">–</p>
+            <p class="indicador__detalhe js-lider-energetico-detalhe"></p>
           </article>
           <article class="indicador">
             <p class="indicador__rotulo">Último voto</p>
@@ -124,31 +124,45 @@
         </section>
 
         <div class="grade-paineis">
-          <!-- Resultado por item -->
-          <section class="cartao" aria-labelledby="titulo-resultado">
+          <section class="cartao" aria-labelledby="titulo-cervejas">
             <header class="cartao__cabecalho">
-              <h2 id="titulo-resultado" class="cartao__titulo">Votos por item</h2>
-              <p class="cartao__subtitulo">Percentual sobre o total de votos válidos</p>
+              <h2 id="titulo-cervejas" class="cartao__titulo">Cervejas</h2>
+              <p class="cartao__subtitulo js-subtitulo-cerveja"></p>
             </header>
-            <div class="grafico js-grafico" role="list"></div>
-            <p class="vazio js-grafico-vazio" hidden>Ainda não há votos registrados.</p>
+            <div class="grafico js-grafico" data-categoria="cerveja" role="list"></div>
           </section>
 
-          <!-- Por dia -->
-          <section class="cartao" aria-labelledby="titulo-dia">
+          <section class="cartao" aria-labelledby="titulo-energeticos">
             <header class="cartao__cabecalho">
-              <h2 id="titulo-dia" class="cartao__titulo">Votos por dia</h2>
-              <p class="cartao__subtitulo">Quantos votos cada item recebeu em cada dia</p>
+              <h2 id="titulo-energeticos" class="cartao__titulo">Energéticos</h2>
+              <p class="cartao__subtitulo js-subtitulo-energetico"></p>
             </header>
-            <div class="tabela-rolagem">
-              <table class="tabela tabela--numeros">
-                <thead class="js-dia-cabecalho"></thead>
-                <tbody class="js-dia-corpo"></tbody>
-              </table>
-            </div>
-            <p class="vazio js-dia-vazio" hidden>Ainda não há votos registrados.</p>
+            <div class="grafico js-grafico" data-categoria="energetico" role="list"></div>
           </section>
         </div>
+
+        <!-- Por dia -->
+        <section class="cartao" aria-labelledby="titulo-dia">
+          <header class="cartao__cabecalho">
+            <h2 id="titulo-dia" class="cartao__titulo">Participações por dia</h2>
+            <p class="cartao__subtitulo">Quantas matrículas votaram e em quais categorias</p>
+          </header>
+          <div class="tabela-rolagem">
+            <table class="tabela tabela--numeros">
+              <thead>
+                <tr>
+                  <th scope="col">Dia</th>
+                  <th scope="col">Participações</th>
+                  <th scope="col">Votos em cerveja</th>
+                  <th scope="col">Votos em energético</th>
+                </tr>
+              </thead>
+              <tbody class="js-dia-corpo"></tbody>
+              <tfoot class="js-dia-rodape"></tfoot>
+            </table>
+          </div>
+          <p class="vazio js-dia-vazio" hidden>Ainda não há votos registrados.</p>
+        </section>
 
         <!-- Lista de votos -->
         <section class="cartao" aria-labelledby="titulo-votos">
@@ -167,9 +181,9 @@
                 />
               </label>
               <label class="filtros__campo">
-                <span class="sr-only">Filtrar por item</span>
+                <span class="sr-only">Filtrar por produto</span>
                 <select class="campo__entrada campo__entrada--compacta js-filtro-item">
-                  <option value="">Todos os itens</option>
+                  <option value="">Todos os produtos</option>
                 </select>
               </label>
             </div>
@@ -181,7 +195,8 @@
                 <tr>
                   <th scope="col">Nº</th>
                   <th scope="col">Matrícula</th>
-                  <th scope="col">Item escolhido</th>
+                  <th scope="col">Cerveja</th>
+                  <th scope="col">Energético</th>
                   <th scope="col">Data/hora</th>
                   <th scope="col"><span class="sr-only">Ações</span></th>
                 </tr>
@@ -202,7 +217,7 @@
           <h2 id="titulo-excluir" class="dialogo__titulo">Excluir este voto?</h2>
           <p class="dialogo__texto">
             O voto nº <strong class="js-excluir-numero"></strong> (matrícula
-            <strong class="js-excluir-matricula"></strong>) em <strong class="js-excluir-item"></strong> será
+            <strong class="js-excluir-matricula"></strong>) — <strong class="js-excluir-item"></strong> — será
             removido da apuração e essa matrícula poderá votar de novo.
           </p>
         </div>

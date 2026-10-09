@@ -73,70 +73,84 @@ router.get('/sessao', (req, res) => {
 
 router.use(exigirAdmin);
 
+const CATEGORIAS = [
+  { chave: 'cerveja', coluna: 'cerveja_id', titulo: 'Cervejas' },
+  { chave: 'energetico', coluna: 'energetico_id', titulo: 'Energéticos' },
+];
+
 async function buscarResultado() {
-  const [itens, totais, dias] = await Promise.all([
+  const [produtos, totais, dias] = await Promise.all([
     pool.query(
-      `SELECT i.id, i.nome, i.imagem, COUNT(v.id)::int AS votos
-         FROM itens i
-         LEFT JOIN votos v ON v.item_id = i.id
-        GROUP BY i.id
-       HAVING i.ativo OR COUNT(v.id) > 0
-        ORDER BY i.ordem, i.id`,
+      `SELECT p.id, p.categoria, p.nome, p.detalhe, p.imagem,
+              (SELECT COUNT(*) FROM participacoes v
+                WHERE v.cerveja_id = p.id OR v.energetico_id = p.id)::int AS votos
+         FROM produtos p
+        ORDER BY p.ordem, p.id`,
     ),
     pool.query(
       `SELECT COUNT(*)::int AS total,
+              COUNT(cerveja_id)::int AS cervejas,
+              COUNT(energetico_id)::int AS energeticos,
               COUNT(*) FILTER (
                 WHERE (criado_em AT TIME ZONE $1)::date = (now() AT TIME ZONE $1)::date
               )::int AS hoje,
               MIN(criado_em) AS primeiro,
               MAX(criado_em) AS ultimo
-         FROM votos`,
+         FROM participacoes`,
       [config.fusoHorario],
     ),
     pool.query(
       `SELECT to_char((criado_em AT TIME ZONE $1)::date, 'DD/MM/YYYY') AS dia,
-              (criado_em AT TIME ZONE $1)::date AS data,
-              item_id, COUNT(*)::int AS votos
-         FROM votos
-        GROUP BY 1, 2, item_id
-        ORDER BY data DESC`,
+              COUNT(*)::int AS participacoes,
+              COUNT(cerveja_id)::int AS cervejas,
+              COUNT(energetico_id)::int AS energeticos
+         FROM participacoes
+        GROUP BY (criado_em AT TIME ZONE $1)::date
+        ORDER BY (criado_em AT TIME ZONE $1)::date DESC`,
       [config.fusoHorario],
     ),
   ]);
 
-  const total = totais.rows[0].total;
-  const maiorVotacao = Math.max(0, ...itens.rows.map((item) => item.votos));
+  const t = totais.rows[0];
+  const votosPorCategoria = { cerveja: t.cervejas, energetico: t.energeticos };
 
-  const porDia = new Map();
-  for (const linha of dias.rows) {
-    if (!porDia.has(linha.dia)) porDia.set(linha.dia, { dia: linha.dia, total: 0, votos: {} });
-    const grupo = porDia.get(linha.dia);
-    grupo.votos[linha.item_id] = linha.votos;
-    grupo.total += linha.votos;
-  }
+  const categorias = CATEGORIAS.map(({ chave, titulo }) => {
+    const totalVotos = votosPorCategoria[chave];
+    const lista = produtos.rows.filter((produto) => produto.categoria === chave);
+    const maior = Math.max(0, ...lista.map((produto) => produto.votos));
+    return {
+      chave,
+      titulo,
+      totalVotos,
+      semEscolha: t.total - totalVotos,
+      produtos: lista.map((produto) => ({
+        ...produto,
+        percentual: totalVotos ? Math.round((produto.votos / totalVotos) * 1000) / 10 : 0,
+        lider: totalVotos > 0 && produto.votos === maior,
+      })),
+    };
+  });
 
   return {
-    total,
-    hoje: totais.rows[0].hoje,
-    primeiroVoto: totais.rows[0].primeiro,
-    ultimoVoto: totais.rows[0].ultimo,
+    total: t.total,
+    hoje: t.hoje,
+    primeiroVoto: t.primeiro,
+    ultimoVoto: t.ultimo,
     votacao: estadoVotacao(),
-    itens: itens.rows.map((item) => ({
-      ...item,
-      percentual: total ? Math.round((item.votos / total) * 1000) / 10 : 0,
-      lider: total > 0 && item.votos === maiorVotacao,
-    })),
-    porDia: [...porDia.values()],
+    categorias,
+    porDia: dias.rows,
   };
 }
 
 async function buscarVotos() {
   const { rows } = await pool.query(
     `SELECT v.id, v.matricula, v.criado_em AS "criadoEm",
-            i.id AS "itemId", i.nome AS "itemNome",
+            v.cerveja_id AS "cervejaId", c.nome AS "cervejaNome",
+            v.energetico_id AS "energeticoId", e.nome AS "energeticoNome",
             to_char(v.criado_em AT TIME ZONE $1, 'DD/MM/YYYY HH24:MI:SS') AS "dataFormatada"
-       FROM votos v
-       JOIN itens i ON i.id = v.item_id
+       FROM participacoes v
+       LEFT JOIN produtos c ON c.id = v.cerveja_id
+       LEFT JOIN produtos e ON e.id = v.energetico_id
       ORDER BY v.criado_em DESC, v.id DESC`,
     [config.fusoHorario],
   );
@@ -165,7 +179,7 @@ router.delete('/votos/:id', async (req, res, next) => {
     if (!Number.isInteger(id) || id <= 0) {
       return res.status(400).json({ erro: 'Identificador de voto inválido.' });
     }
-    const { rowCount } = await pool.query('DELETE FROM votos WHERE id = $1', [id]);
+    const { rowCount } = await pool.query('DELETE FROM participacoes WHERE id = $1', [id]);
     if (rowCount === 0) return res.status(404).json({ erro: 'Voto não encontrado.' });
     res.json({ removido: true });
   } catch (erro) {
@@ -202,17 +216,22 @@ function formatarPercentual(valor) {
 router.get('/exportar/resumo.csv', async (req, res, next) => {
   try {
     const resultado = await buscarResultado();
-    const linhas = [['Item', 'Votos', 'Percentual']];
-    for (const item of resultado.itens) {
-      linhas.push([item.nome, item.votos, formatarPercentual(item.percentual)]);
+    const linhas = [['Categoria', 'Produto', 'Votos', 'Percentual']];
+    for (const categoria of resultado.categorias) {
+      for (const produto of categoria.produtos) {
+        linhas.push([categoria.titulo, produto.nome, produto.votos, formatarPercentual(produto.percentual)]);
+      }
+      linhas.push([categoria.titulo, 'Total de votos', categoria.totalVotos, '']);
+      linhas.push([categoria.titulo, 'Não escolheram', categoria.semEscolha, '']);
     }
-    linhas.push(['Total', resultado.total, resultado.total ? '100,0%' : '0,0%']);
     linhas.push([]);
-    linhas.push(['Dia', ...resultado.itens.map((item) => item.nome), 'Total']);
-    for (const grupo of resultado.porDia) {
-      linhas.push([grupo.dia, ...resultado.itens.map((item) => grupo.votos[item.id] || 0), grupo.total]);
+    linhas.push(['Participações (matrículas)', resultado.total]);
+    linhas.push([]);
+    linhas.push(['Dia', 'Participações', 'Votos em cerveja', 'Votos em energético']);
+    for (const dia of resultado.porDia) {
+      linhas.push([dia.dia, dia.participacoes, dia.cervejas, dia.energeticos]);
     }
-    enviarCsv(res, `resultado-cesta-natal-${carimboArquivo()}.csv`, linhas);
+    enviarCsv(res, `resultado-aniversariantes-${carimboArquivo()}.csv`, linhas);
   } catch (erro) {
     next(erro);
   }
@@ -221,11 +240,17 @@ router.get('/exportar/resumo.csv', async (req, res, next) => {
 router.get('/exportar/votos.csv', async (req, res, next) => {
   try {
     const votos = await buscarVotos();
-    const linhas = [['ID', 'Matrícula', 'Item escolhido', 'Data/hora']];
+    const linhas = [['ID', 'Matrícula', 'Cerveja', 'Energético', 'Data/hora']];
     for (const voto of votos) {
-      linhas.push([voto.id, voto.matricula || '', voto.itemNome, voto.dataFormatada]);
+      linhas.push([
+        voto.id,
+        voto.matricula,
+        voto.cervejaNome || '',
+        voto.energeticoNome || '',
+        voto.dataFormatada,
+      ]);
     }
-    enviarCsv(res, `votos-cesta-natal-${carimboArquivo()}.csv`, linhas);
+    enviarCsv(res, `votos-aniversariantes-${carimboArquivo()}.csv`, linhas);
   } catch (erro) {
     next(erro);
   }

@@ -126,7 +126,7 @@ chmod 600 .env
 npm run db:init
 ```
 
-Deve aparecer: `Banco de dados pronto: tabelas criadas e itens cadastrados.`
+Deve aparecer: `Banco de dados pronto: tabelas criadas e produtos cadastrados.`
 
 ## 7. Deixar o sistema sempre ligado
 
@@ -192,7 +192,7 @@ automaticamente para `https://`. A renovação do certificado é automática.
 
 ## 10. Conferir
 
-1. Abra o site, escolha um item, digite uma matrícula de teste e vote: deve aparecer **"Obrigado pelo
+1. Abra o site, escolha uma cerveja e/ou um energético, digite uma matrícula de teste e vote: deve aparecer **"Obrigado pelo
    seu voto!"** e, após 5 segundos, a tela volta sozinha para a escolha.
 2. Abra `/admin`, entre com a `ADMIN_PASSWORD` e confira o voto.
 3. **Exclua os votos de teste** no painel antes de divulgar o link para os colaboradores.
@@ -223,7 +223,7 @@ automaticamente para `https://`. A renovação do certificado é automática.
 
 ## Atualizar um servidor que já está no ar
 
-Para aplicar uma nova versão (por exemplo, a votação livre sem nome/setor):
+Para aplicar uma nova versão:
 
 ```bash
 cd ~/pesquisanatalbrinde

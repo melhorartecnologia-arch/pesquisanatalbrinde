@@ -22,15 +22,22 @@
     atualizadoEm: $('.js-atualizado-em'),
     total: $('.js-total'),
     totalDetalhe: $('.js-total-detalhe'),
-    lider: $('.js-lider'),
-    liderDetalhe: $('.js-lider-detalhe'),
-    hoje: $('.js-hoje'),
+    lideres: {
+      cerveja: [$('.js-lider-cerveja'), $('.js-lider-cerveja-detalhe')],
+      energetico: [$('.js-lider-energetico'), $('.js-lider-energetico-detalhe')],
+    },
     ultimo: $('.js-ultimo'),
     ultimoDetalhe: $('.js-ultimo-detalhe'),
-    grafico: $('.js-grafico'),
-    graficoVazio: $('.js-grafico-vazio'),
-    diaCabecalho: $('.js-dia-cabecalho'),
+    graficos: {
+      cerveja: $('.js-grafico[data-categoria="cerveja"]'),
+      energetico: $('.js-grafico[data-categoria="energetico"]'),
+    },
+    subtitulos: {
+      cerveja: $('.js-subtitulo-cerveja'),
+      energetico: $('.js-subtitulo-energetico'),
+    },
     diaCorpo: $('.js-dia-corpo'),
+    diaRodape: $('.js-dia-rodape'),
     diaVazio: $('.js-dia-vazio'),
     votosCorpo: $('.js-votos-corpo'),
     votosVazio: $('.js-votos-vazio'),
@@ -209,7 +216,7 @@
       el.erroPainel.hidden = true;
 
       renderizarIndicadores();
-      renderizarGrafico();
+      renderizarGraficos();
       renderizarDias();
       atualizarFiltroItens();
       renderizarVotos();
@@ -259,35 +266,36 @@
     }
 
     el.total.textContent = formatoNumero.format(r.total);
-    el.totalDetalhe.textContent = r.primeiroVoto
-      ? `desde ${new Date(r.primeiroVoto).toLocaleDateString('pt-BR')}`
+    el.totalDetalhe.textContent = r.total
+      ? `${plural(r.hoje, 'matrícula', 'matrículas')} hoje · desde ${new Date(r.primeiroVoto).toLocaleDateString('pt-BR')}`
       : 'nenhum voto ainda';
 
-    const lideres = r.itens.filter((item) => item.lider);
-    if (r.total === 0 || lideres.length === 0) {
-      el.lider.textContent = '–';
-      el.liderDetalhe.textContent = 'aguardando votos';
-    } else if (lideres.length > 1) {
-      el.lider.textContent = 'Empate';
-      el.liderDetalhe.textContent = `${lideres.map((item) => item.nome).join(' e ')} · ${plural(
-        lideres[0].votos,
-        'voto',
-        'votos',
-      )} cada`;
-    } else {
-      const [lider] = lideres;
-      const segundo = r.itens
-        .filter((item) => item.id !== lider.id)
-        .reduce((maior, item) => Math.max(maior, item.votos), 0);
-      el.lider.textContent = lider.nome;
-      el.liderDetalhe.textContent = `${formatarPercentual(lider.percentual)} · ${plural(
-        lider.votos - segundo,
-        'voto',
-        'votos',
-      )} à frente`;
-    }
-
-    el.hoje.textContent = formatoNumero.format(r.hoje);
+    r.categorias.forEach((categoria) => {
+      const [valor, detalhe] = el.lideres[categoria.chave];
+      const lideres = categoria.produtos.filter((produto) => produto.lider);
+      if (lideres.length === 0) {
+        valor.textContent = '–';
+        detalhe.textContent = 'aguardando votos';
+      } else if (lideres.length > 1) {
+        valor.textContent = 'Empate';
+        detalhe.textContent = `${lideres.map((produto) => produto.nome).join(' e ')} · ${plural(
+          lideres[0].votos,
+          'voto',
+          'votos',
+        )} cada`;
+      } else {
+        const [lider] = lideres;
+        const segundo = categoria.produtos
+          .filter((produto) => produto.id !== lider.id)
+          .reduce((maior, produto) => Math.max(maior, produto.votos), 0);
+        valor.textContent = lider.nome;
+        detalhe.textContent = `${formatarPercentual(lider.percentual)} · ${plural(
+          lider.votos - segundo,
+          'voto',
+          'votos',
+        )} à frente`;
+      }
+    });
 
     if (r.ultimoVoto) {
       el.ultimo.textContent = tempoRelativo(r.ultimoVoto);
@@ -300,12 +308,19 @@
 
   // ---------- Gráfico de barras ----------
 
-  function renderizarGrafico() {
-    const r = estado.resultado;
-    const empate = r.itens.filter((item) => item.lider).length > 1;
-    el.graficoVazio.hidden = r.total > 0;
+  function renderizarGraficos() {
+    estado.resultado.categorias.forEach(renderizarGrafico);
+  }
 
-    const barras = r.itens.map((item) => {
+  function renderizarGrafico(categoria) {
+    const empate = categoria.produtos.filter((item) => item.lider).length > 1;
+    el.subtitulos[categoria.chave].textContent = `${plural(categoria.totalVotos, 'voto', 'votos')} · ${plural(
+      categoria.semEscolha,
+      'participação sem escolha',
+      'participações sem escolha',
+    )} nesta categoria`;
+
+    const barras = categoria.produtos.map((item) => {
       const valor = criar('span', { classe: 'barra__valor' }, [
         criar('strong', { texto: formatoNumero.format(item.votos) }),
         ` ${item.votos === 1 ? 'voto' : 'votos'} · ${formatarPercentual(item.percentual)}`,
@@ -347,7 +362,7 @@
       return barra;
     });
 
-    el.grafico.replaceChildren(...barras);
+    el.graficos[categoria.chave].replaceChildren(...barras);
   }
 
   function mostrarDica(item, x, y) {
@@ -371,39 +386,18 @@
   function renderizarDias() {
     const r = estado.resultado;
     el.diaVazio.hidden = r.porDia.length > 0;
-    el.diaCabecalho.replaceChildren();
-    el.diaCorpo.replaceChildren();
-    const tabela = el.diaCorpo.closest('table');
-    const rodapeAntigo = tabela.querySelector('tfoot');
-    if (rodapeAntigo) rodapeAntigo.remove();
-    if (r.porDia.length === 0) return;
-
-    el.diaCabecalho.append(
+    const linha = (rotulo, valores) =>
       criar('tr', {}, [
-        criar('th', { scope: 'col', texto: 'Dia' }),
-        ...r.itens.map((item) => criar('th', { scope: 'col', texto: item.nome })),
-        criar('th', { scope: 'col', texto: 'Total' }),
-      ]),
+        criar('td', { texto: rotulo }),
+        ...valores.map((valor) => criar('td', { texto: formatoNumero.format(valor) })),
+      ]);
+
+    el.diaCorpo.replaceChildren(
+      ...r.porDia.map((dia) => linha(dia.dia, [dia.participacoes, dia.cervejas, dia.energeticos])),
     );
-
-    r.porDia.forEach((grupo) => {
-      el.diaCorpo.append(
-        criar('tr', {}, [
-          criar('td', { texto: grupo.dia }),
-          ...r.itens.map((item) => criar('td', { texto: formatoNumero.format(grupo.votos[item.id] || 0) })),
-          criar('td', { texto: formatoNumero.format(grupo.total) }),
-        ]),
-      );
-    });
-
-    tabela.append(
-      criar('tfoot', {}, [
-        criar('tr', {}, [
-          criar('td', { texto: 'Total' }),
-          ...r.itens.map((item) => criar('td', { texto: formatoNumero.format(item.votos) })),
-          criar('td', { texto: formatoNumero.format(r.total) }),
-        ]),
-      ]),
+    const [cervejas, energeticos] = r.categorias.map((categoria) => categoria.totalVotos);
+    el.diaRodape.replaceChildren(
+      ...(r.porDia.length ? [linha('Total', [r.total, cervejas, energeticos])] : []),
     );
   }
 
@@ -412,8 +406,16 @@
   function atualizarFiltroItens() {
     const atual = el.filtroItem.value;
     el.filtroItem.replaceChildren(
-      criar('option', { value: '', texto: 'Todos os itens' }),
-      ...estado.resultado.itens.map((item) => criar('option', { value: String(item.id), texto: item.nome })),
+      criar('option', { value: '', texto: 'Todos os produtos' }),
+      ...estado.resultado.categorias.map((categoria) =>
+        criar(
+          'optgroup',
+          { label: categoria.titulo },
+          categoria.produtos.map((produto) =>
+            criar('option', { value: String(produto.id), texto: produto.nome }),
+          ),
+        ),
+      ),
     );
     el.filtroItem.value = $$('option', el.filtroItem).some((opcao) => opcao.value === atual) ? atual : '';
   }
@@ -423,7 +425,7 @@
     const termo = el.busca.value.replace(/\s+/g, '').toUpperCase();
     const filtrados = estado.votos.filter(
       (voto) =>
-        (!itemFiltro || String(voto.itemId) === itemFiltro) &&
+        (!itemFiltro || String(voto.cervejaId) === itemFiltro || String(voto.energeticoId) === itemFiltro) &&
         (!termo || (voto.matricula || '').includes(termo)),
     );
 
@@ -447,7 +449,14 @@
         return criar('tr', {}, [
           criar('td', { texto: String(voto.id) }),
           criar('td', { classe: 'tabela__nome', texto: voto.matricula || '—' }),
-          criar('td', { texto: voto.itemNome }),
+          criar(
+            'td',
+            voto.cervejaNome ? { texto: voto.cervejaNome } : { classe: 'tabela__vazio', texto: '—' },
+          ),
+          criar(
+            'td',
+            voto.energeticoNome ? { texto: voto.energeticoNome } : { classe: 'tabela__vazio', texto: '—' },
+          ),
           criar('td', { texto: voto.dataFormatada }),
           criar('td', {}, [botaoExcluir]),
         ]);
@@ -464,7 +473,7 @@
     estado.votoParaExcluir = voto;
     el.excluirNumero.textContent = String(voto.id);
     el.excluirMatricula.textContent = voto.matricula || 'não informada';
-    el.excluirItem.textContent = voto.itemNome;
+    el.excluirItem.textContent = [voto.cervejaNome, voto.energeticoNome].filter(Boolean).join(' + ');
     el.dialogoExcluir.showModal();
   }
 

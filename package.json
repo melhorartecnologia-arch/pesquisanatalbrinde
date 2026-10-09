@@ -1,7 +1,7 @@
 {
   "name": "pesquisa-natal-cidade-imperial",
   "version": "1.0.0",
-  "description": "Pesquisa interna da Cervejaria Cidade Imperial para escolher o item da cesta de Natal.",
+  "description": "Votação interna da Cervejaria Cidade Imperial para escolher a cerveja e o energético dos aniversariantes do mês.",
   "main": "src/server.js",
   "private": true,
   "scripts": {

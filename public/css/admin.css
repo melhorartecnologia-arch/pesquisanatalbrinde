@@ -201,7 +201,7 @@
 
 .indicadores {
   display: grid;
-  grid-template-columns: 1.1fr 1.3fr 0.8fr 1fr;
+  grid-template-columns: 0.9fr 1.2fr 1.2fr 1fr;
   gap: 16px;
 }
 
@@ -479,10 +479,10 @@
 }
 
 .tabela--votos {
-  min-width: 560px;
+  min-width: 680px;
 }
 
-.tabela--votos td:nth-child(4) {
+.tabela--votos td:nth-child(5) {
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
   color: var(--tinta-2);
@@ -495,6 +495,10 @@
 
 .tabela__nome {
   font-weight: 600;
+}
+
+.tabela__vazio {
+  color: var(--tinta-3);
 }
 
 .botao-texto {
