@@ -3,7 +3,7 @@
    ========================================================================== */
 
 :root {
-  --barra-destaque: #1d4ea6;
+  --barra-destaque: #b8862b;
   --barra-neutra: #8a94a7;
   --barra-trilho: #eef1f6;
 }
@@ -16,7 +16,7 @@
   min-height: 100vh;
   padding: 24px 16px;
   background:
-    radial-gradient(800px 400px at 50% -10%, rgba(29, 78, 166, 0.09), transparent 70%),
+    radial-gradient(800px 400px at 50% -10%, rgba(201, 149, 46, 0.12), transparent 70%),
     radial-gradient(600px 300px at 50% 110%, rgba(226, 178, 79, 0.12), transparent 70%), var(--fundo);
 }
 
@@ -72,7 +72,7 @@
 }
 
 .login__voltar:hover {
-  color: var(--azul);
+  color: var(--primaria-tinta);
 }
 
 .senha {
@@ -217,8 +217,8 @@
 }
 
 .indicador--destaque {
-  border-color: var(--azul-borda);
-  background: linear-gradient(180deg, #f5f8fe, var(--superficie));
+  border-color: var(--primaria-borda);
+  background: linear-gradient(180deg, #fdf8ec, var(--superficie));
 }
 
 .indicador__rotulo {
@@ -392,7 +392,7 @@
 .barra:focus-visible {
   box-shadow:
     0 0 0 3px #fff,
-    0 0 0 5px var(--azul);
+    0 0 0 5px var(--primaria-tinta);
 }
 
 .dica {

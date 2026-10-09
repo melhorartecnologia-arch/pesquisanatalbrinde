@@ -18,10 +18,13 @@
   --tinta-3: #6f788c;
 
   /* Marca */
-  --azul: #1d4ea6;
-  --azul-escuro: #143a7f;
-  --azul-claro: #eaf0fb;
-  --azul-borda: #c4d3f0;
+  /* Cor principal: dourado (botões, seleção e destaques) */
+  --primaria: #c9952e; /* preenchimentos, com texto escuro por cima (contraste 6,5:1) */
+  --primaria-forte: #b8862b; /* hover e marcas de gráfico (3,2:1 sobre branco) */
+  --primaria-tinta: #8f6718; /* textos e ícones dourados sobre fundo claro (4,9:1) */
+  --primaria-clara: #fbf3e0;
+  --primaria-borda: #ecd6a4;
+  --sobre-primaria: #1f1a10;
   --dourado: #b07f22;
   --dourado-vivo: #e2b24f;
   --dourado-claro: #f8f0dc;
@@ -41,7 +44,7 @@
   --sombra-1: 0 1px 2px rgba(21, 32, 58, 0.06), 0 2px 8px rgba(21, 32, 58, 0.05);
   --sombra-2: 0 2px 4px rgba(21, 32, 58, 0.05), 0 12px 32px rgba(21, 32, 58, 0.09);
   --sombra-3: 0 4px 8px rgba(21, 32, 58, 0.06), 0 24px 56px rgba(21, 32, 58, 0.14);
-  --foco: 0 0 0 3px #fff, 0 0 0 5px var(--azul);
+  --foco: 0 0 0 3px #fff, 0 0 0 5px var(--primaria-tinta);
 
   --largura: 1160px;
   --margem: clamp(16px, 4vw, 40px);
@@ -92,7 +95,7 @@ p {
 }
 
 a {
-  color: var(--azul);
+  color: var(--primaria-tinta);
 }
 
 button,
@@ -165,8 +168,8 @@ select {
 /* ---------- Botões ---------- */
 
 .botao {
-  --botao-fundo: var(--azul);
-  --botao-texto: #fff;
+  --botao-fundo: var(--primaria);
+  --botao-texto: var(--sobre-primaria);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -183,8 +186,8 @@ select {
   text-decoration: none;
   cursor: pointer;
   box-shadow:
-    0 1px 2px rgba(20, 58, 127, 0.25),
-    0 8px 20px rgba(29, 78, 166, 0.22);
+    0 1px 2px rgba(122, 87, 19, 0.25),
+    0 8px 20px rgba(184, 134, 43, 0.28);
   transition:
     transform 0.15s ease,
     box-shadow 0.15s ease,
@@ -192,7 +195,7 @@ select {
 }
 
 .botao:hover {
-  --botao-fundo: var(--azul-escuro);
+  --botao-fundo: var(--primaria-forte);
   transform: translateY(-1px);
 }
 
@@ -224,6 +227,7 @@ select {
 
 .botao--perigo {
   --botao-fundo: var(--vermelho);
+  --botao-texto: #fff;
   box-shadow:
     0 1px 2px rgba(179, 38, 30, 0.25),
     0 8px 20px rgba(179, 38, 30, 0.18);
@@ -288,8 +292,8 @@ select {
 
 .campo__entrada:focus {
   outline: none;
-  border-color: var(--azul);
-  box-shadow: 0 0 0 4px rgba(29, 78, 166, 0.14);
+  border-color: var(--primaria-forte);
+  box-shadow: 0 0 0 4px rgba(201, 149, 46, 0.2);
 }
 
 .campo__entrada[aria-invalid='true'] {

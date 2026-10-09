@@ -314,7 +314,7 @@
   function criarConfete() {
     const alvo = $('.hero__confete');
     if (!alvo || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const cores = ['#e2b24f', '#1d4ea6', '#e8378f', '#f28a1c', '#3aa05a'];
+    const cores = ['#e2b24f', '#c9952e', '#e8378f', '#f28a1c', '#3aa05a', '#8f6718'];
     const quantidade = window.innerWidth < 640 ? 18 : 32;
     for (let i = 0; i < quantidade; i += 1) {
       const peca = document.createElement('span');

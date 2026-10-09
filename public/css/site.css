@@ -4,7 +4,7 @@
 
 body {
   background:
-    radial-gradient(1200px 600px at 85% -10%, rgba(29, 78, 166, 0.07), transparent 60%),
+    radial-gradient(1200px 600px at 85% -10%, rgba(201, 149, 46, 0.1), transparent 60%),
     radial-gradient(900px 500px at -10% 10%, rgba(226, 178, 79, 0.1), transparent 60%), var(--fundo);
 }
 
@@ -20,8 +20,8 @@ body {
   overflow: visible;
   clip: auto;
   border-radius: 10px;
-  background: var(--azul);
-  color: #fff;
+  background: var(--primaria);
+  color: var(--sobre-primaria);
 }
 
 /* ---------- Topo ---------- */
@@ -91,7 +91,7 @@ body {
   margin-top: 6px;
   font-style: italic;
   font-weight: 600;
-  color: var(--azul);
+  color: var(--primaria-tinta);
 }
 
 .hero__descricao {
@@ -142,7 +142,7 @@ body {
   border-radius: 50%;
   background:
     radial-gradient(circle at 50% 40%, #ffffff 0%, rgba(255, 255, 255, 0) 62%),
-    radial-gradient(circle at 50% 55%, #e4ecfa 0%, #f2eedf 58%, rgba(242, 238, 223, 0) 72%);
+    radial-gradient(circle at 50% 55%, #f7e7c2 0%, #f4eedf 58%, rgba(242, 238, 223, 0) 72%);
 }
 
 .vitrine__halo::after {
@@ -212,8 +212,8 @@ body {
   height: 38px;
   flex: none;
   border-radius: 12px;
-  background: var(--azul);
-  color: #fff;
+  background: var(--primaria);
+  color: var(--sobre-primaria);
   font-family: var(--fonte-titulo);
   font-size: 22px;
 }
@@ -304,11 +304,11 @@ body {
 
 .faixa {
   overflow: hidden;
-  background: linear-gradient(180deg, #2459b8, var(--azul) 50%, #1a4697);
-  color: #fff;
+  background: linear-gradient(180deg, #d9a843, var(--primaria) 50%, #b8862b);
+  color: var(--sobre-primaria);
   border-top: 3px solid #fff;
   border-bottom: 3px solid #fff;
-  box-shadow: 0 0 0 1px rgba(29, 78, 166, 0.25);
+  box-shadow: 0 0 0 1px rgba(184, 134, 43, 0.35);
 }
 
 .faixa__trilho {
@@ -328,7 +328,7 @@ body {
 
 .faixa__trilho i {
   font-style: normal;
-  color: var(--dourado-vivo);
+  color: #fff;
 }
 
 @keyframes rolar {
@@ -422,8 +422,8 @@ body {
 .carregando__icone {
   width: 22px;
   height: 22px;
-  border: 2.5px solid var(--azul-borda);
-  border-top-color: var(--azul);
+  border: 2.5px solid var(--primaria-borda);
+  border-top-color: var(--primaria-tinta);
   border-radius: 50%;
   animation: girar 0.8s linear infinite;
 }
@@ -502,7 +502,7 @@ body {
 }
 
 .opcao:hover {
-  border-color: var(--azul-borda);
+  border-color: var(--primaria-borda);
   box-shadow: var(--sombra-2);
   transform: translateY(-3px);
 }
@@ -510,14 +510,14 @@ body {
 .opcao:focus-within {
   box-shadow:
     var(--sombra-2),
-    0 0 0 4px rgba(29, 78, 166, 0.22);
+    0 0 0 4px rgba(201, 149, 46, 0.3);
 }
 
 .opcao.is-selecionada {
-  border-color: var(--azul);
+  border-color: var(--primaria);
   box-shadow:
     var(--sombra-2),
-    0 0 0 4px rgba(29, 78, 166, 0.14);
+    0 0 0 4px rgba(201, 149, 46, 0.22);
 }
 
 .opcao__entrada {
@@ -534,7 +534,7 @@ body {
   padding: 20px;
   background:
     radial-gradient(circle at 50% 58%, #ffffff 0%, rgba(255, 255, 255, 0) 55%),
-    linear-gradient(180deg, #f6f3ea, #eef2fa);
+    linear-gradient(180deg, #f8f4ea, #f6ecd6);
 }
 
 .opcao__vitrine img {
@@ -561,9 +561,9 @@ body {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--azul);
-  color: #fff;
-  box-shadow: 0 6px 14px rgba(29, 78, 166, 0.35);
+  background: var(--primaria);
+  color: var(--sobre-primaria);
+  box-shadow: 0 6px 14px rgba(184, 134, 43, 0.4);
   opacity: 0;
   transform: scale(0.6);
   transition:
@@ -626,11 +626,11 @@ body {
 }
 
 .opcao.is-selecionada .opcao__radio {
-  border: 7px solid var(--azul);
+  border: 7px solid var(--primaria);
 }
 
 .opcao.is-selecionada .opcao__seletor {
-  color: var(--azul);
+  color: var(--primaria-tinta);
 }
 
 /* Envio do voto */
@@ -671,7 +671,7 @@ body {
 .resumo {
   min-height: 1.4em;
   font-weight: 600;
-  color: var(--azul);
+  color: var(--primaria-tinta);
   text-align: center;
 }
 
@@ -750,9 +750,9 @@ body {
   gap: 14px;
   min-width: 0;
   padding: 12px;
-  border: 1px solid var(--azul-borda);
+  border: 1px solid var(--primaria-borda);
   border-radius: 16px;
-  background: var(--azul-claro);
+  background: var(--primaria-clara);
 }
 
 .escolha--vazia {
@@ -776,7 +776,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--azul);
+  color: var(--primaria-tinta);
 }
 
 .escolha--vazia .escolha__rotulo {
