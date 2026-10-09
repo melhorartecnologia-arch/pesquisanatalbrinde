@@ -35,6 +35,7 @@ INSERT INTO produtos (slug, categoria, nome, detalhe, imagem, ordem) VALUES
   ('cerveja-gold',             'cerveja',    'Império Gold',          'Long neck · 330 ml',            '/img/cerveja-gold.webp',             1),
   ('cerveja-lager',            'cerveja',    'Império Lager',         'Long neck · 330 ml',            '/img/cerveja-lager.webp',            2),
   ('cerveja-helles',           'cerveja',    'Império Helles',        'Long neck · 330 ml',            '/img/cerveja-helles.webp',           3),
+  ('cerveja-ultra',           'cerveja',    'Império Ultra',        'Long neck · 330 ml',            '/img/cerveja-ultra.webp',           4),
   ('energetico-extreme',       'energetico', 'Dopamina Extreme',      'Lata 269 ml · tutti-frutti',    '/img/energetico-extreme.webp',       1),
   ('energetico-black',         'energetico', 'Dopamina Black',        'Lata 473 ml · mix de frutas',   '/img/energetico-black.webp',         2),
   ('energetico-manga-summer',  'energetico', 'Dopamina Manga Summer', 'Tradicional · lata 473 ml · manga', '/img/energetico-manga-summer.webp', 3)

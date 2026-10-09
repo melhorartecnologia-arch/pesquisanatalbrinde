@@ -476,7 +476,8 @@ body {
 
 .opcoes__grade {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* --colunas é definido pelo JS conforme a quantidade de produtos da categoria (máx. 4) */
+  grid-template-columns: repeat(var(--colunas, 3), minmax(0, 1fr));
   gap: clamp(12px, 2vw, 24px);
 }
 

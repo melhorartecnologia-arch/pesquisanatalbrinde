@@ -17,6 +17,7 @@ Hotsite interno para os colaboradores votarem nos produtos dos aniversariantes d
 | Cerveja    | Império Gold          | Long neck · 330 ml          | `public/img/cerveja-gold.webp`            |
 | Cerveja    | Império Lager         | Long neck · 330 ml          | `public/img/cerveja-lager.webp`           |
 | Cerveja    | Império Helles        | Long neck · 330 ml          | `public/img/cerveja-helles.webp`          |
+| Cerveja    | Império Ultra         | Long neck · 330 ml          | `public/img/cerveja-ultra.webp`           |
 | Energético | Dopamina Extreme      | Lata 269 ml · tutti-frutti  | `public/img/energetico-extreme.webp`      |
 | Energético | Dopamina Black        | Lata 473 ml · mix de frutas | `public/img/energetico-black.webp`        |
 | Energético | Dopamina Manga Summer | Tradicional · lata 473 ml   | `public/img/energetico-manga-summer.webp` |

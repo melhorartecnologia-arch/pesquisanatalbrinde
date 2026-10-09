@@ -111,6 +111,7 @@
   function renderizarCategoria(categoria) {
     const grade = el.grades[categoria];
     grade.replaceChildren();
+    grade.style.setProperty('--colunas', String(Math.min(Math.max(estado.produtos[categoria].length, 1), 4)));
     estado.produtos[categoria].forEach((produto) => {
       const fragmento = el.modeloOpcao.content.cloneNode(true);
       const cartao = $('.opcao', fragmento);
